@@ -5,30 +5,32 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Hospital No-Show Prediction",
-    page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ─── Custom CSS — Dark theme with white/cyan accents, NO purple ─────────────
+# ─── Custom CSS — Black/White theme ─────────────────────────────────────────
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     /* Global dark theme */
     .stApp {
-        background: linear-gradient(135deg, #0a0a0a 0%, #111827 50%, #0a0a0a 100%);
+        background: #000000;
         font-family: 'Inter', sans-serif;
+        color: #ffffff;
     }
 
     /* Sidebar styling */
     section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #111827 0%, #1a1a2e 100%) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background: #000000 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
     }
     section[data-testid="stSidebar"] .stMarkdown h1,
     section[data-testid="stSidebar"] .stMarkdown h2,
@@ -38,169 +40,142 @@ st.markdown("""
     section[data-testid="stSidebar"] .stMarkdown p,
     section[data-testid="stSidebar"] .stMarkdown span,
     section[data-testid="stSidebar"] .stMarkdown label {
-        color: #94a3b8 !important;
+        color: #ffffff !important;
     }
 
     /* Hero Header */
     .hero-header {
-        padding: 2rem 2.5rem;
         border-radius: 16px;
-        background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 40%, #14b8a6 100%);
+        background: #000000;
+        border: 1px solid rgba(255, 255, 255, 0.25);
         color: white;
         text-align: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 20px 60px rgba(14, 165, 233, 0.3);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: none;
         position: relative;
         overflow: hidden;
-    }
-    .hero-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-        animation: shimmer 3s ease-in-out infinite;
-    }
-    @keyframes shimmer {
-        0%, 100% { transform: translate(-10%, -10%); }
-        50% { transform: translate(10%, 10%); }
     }
     .hero-header h1 {
         font-size: 2rem;
         font-weight: 800;
-        margin: 0;
         position: relative;
         letter-spacing: -0.5px;
     }
     .hero-header p {
         font-size: 1rem;
         opacity: 0.9;
-        margin: 0.5rem 0 0;
         position: relative;
         font-weight: 300;
     }
 
     /* Metric Cards */
     .metric-card {
-        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
         text-align: center;
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
     }
     .metric-card:hover {
-        border-color: rgba(14, 165, 233, 0.5);
-        box-shadow: 0 8px 32px rgba(14, 165, 233, 0.15);
+        border-color: rgba(255, 255, 255, 0.45);
+        box-shadow: none;
         transform: translateY(-2px);
     }
     .metric-card .metric-value {
         font-size: 2rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #0ea5e9, #14b8a6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
+        color: #ffffff;
     }
     .metric-card .metric-label {
         font-size: 0.85rem;
-        color: #94a3b8;
+        color: #ffffff;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-top: 0.5rem;
     }
 
     /* Risk Result Cards */
     .risk-low {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
-        border: 1px solid rgba(16, 185, 129, 0.4);
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.25);
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
         text-align: center;
     }
     .risk-medium {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
-        border: 1px solid rgba(245, 158, 11, 0.4);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.35);
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
         text-align: center;
     }
     .risk-high {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
-        border: 1px solid rgba(239, 68, 68, 0.4);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.45);
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
         text-align: center;
     }
     .risk-label {
         font-size: 1.5rem;
         font-weight: 700;
-        margin: 0;
     }
     .risk-description {
         font-size: 0.9rem;
-        color: #94a3b8;
-        margin-top: 0.5rem;
+        color: #ffffff;
     }
 
     /* Section Headers */
     .section-header {
         font-size: 1.3rem;
         font-weight: 700;
-        color: #e2e8f0;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid rgba(14, 165, 233, 0.3);
-        margin: 2rem 0 1rem;
+        color: #ffffff;
+        padding: 0.5rem 0;
+        margin: 0.8rem 0;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     }
 
     /* Glass card */
     .glass-card {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
         backdrop-filter: blur(10px);
-        margin-bottom: 1rem;
     }
 
     /* Sidebar nav buttons */
-    .nav-button {
-        display: block;
+    section[data-testid="stSidebar"] .stButton > button {
         width: 100%;
-        padding: 0.85rem 1.2rem;
-        margin-bottom: 0.5rem;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        color: #e2e8f0;
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: left;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        background: #000000 !important;
+        color: #ffffff !important;
+        padding: 0.55rem 0.8rem !important;
+        margin-bottom: 0.45rem !important;
+        font-weight: 600 !important;
     }
-    .nav-button:hover {
-        background: rgba(14, 165, 233, 0.15);
-        border-color: rgba(14, 165, 233, 0.4);
-    }
-    .nav-active {
-        background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(20, 184, 166, 0.2)) !important;
-        border-color: rgba(14, 165, 233, 0.5) !important;
-        color: #0ea5e9 !important;
-        font-weight: 600;
+    section[data-testid="stSidebar"] .stButton > button:hover {
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        background: rgba(255,255,255,0.08) !important;
     }
 
     /* Model comparison best badge */
     .best-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+        background: #000000;
         color: white;
-        padding: 0.25rem 0.75rem;
         border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.35rem 0.7rem;
         font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
@@ -209,20 +184,25 @@ st.markdown("""
 
     /* Override Streamlit form submit button */
     .stFormSubmitButton > button {
-        background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%) !important;
+        background: #000000 !important;
         color: white !important;
-        border: none !important;
+        border: 1px solid rgba(255,255,255,0.3) !important;
         border-radius: 12px !important;
-        padding: 0.75rem 2rem !important;
+        padding: 0.6rem 1rem !important;
         font-size: 1rem !important;
         font-weight: 600 !important;
         letter-spacing: 0.5px;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important;
+        box-shadow: none !important;
     }
     .stFormSubmitButton > button:hover {
-        box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5) !important;
+        background: rgba(255,255,255,0.08) !important;
         transform: translateY(-1px);
+    }
+
+    .stAlert {
+        margin: 0.8rem 0 !important;
+        padding: 0.6rem 0.8rem !important;
     }
 
     /* Tabs styling */
@@ -230,26 +210,23 @@ st.markdown("""
         gap: 0.5rem;
         background: rgba(255,255,255,0.03);
         border-radius: 12px;
-        padding: 0.3rem;
     }
     .stTabs [data-baseweb="tab"] {
         border-radius: 10px;
-        color: #94a3b8;
+        color: #ffffff;
         font-weight: 500;
     }
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(20, 184, 166, 0.2));
-        color: #0ea5e9;
+        background: rgba(255,255,255,0.12);
+        color: #ffffff;
     }
 
     /* Footer */
     .footer {
         text-align: center;
-        color: #475569;
+        color: #ffffff;
         font-size: 0.8rem;
-        margin-top: 3rem;
-        padding: 1rem;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(255,255,255,0.2);
     }
 
     /* Hide default streamlit header */
@@ -259,7 +236,7 @@ st.markdown("""
 
     /* Input styling */
     .stSelectbox label, .stNumberInput label, .stSlider label {
-        color: #cbd5e1 !important;
+        color: #ffffff !important;
         font-weight: 500 !important;
     }
 </style>
@@ -287,8 +264,98 @@ def load_dataset():
     return df
 
 
+def _add_confusion_matrices_if_missing(metrics, models, scaler, feature_columns, df):
+    cm_keys = {"Confusion Matrix", "confusion_matrix", "confusionMatrix", "cm"}
+    has_confusion_matrix = any(any(key in model_metrics for key in cm_keys) for model_metrics in metrics.values())
+    if has_confusion_matrix:
+        return metrics
+
+    data = df.copy()
+
+    if "waiting_days" in data.columns and "lead_time" not in data.columns:
+        data.rename(columns={"waiting_days": "lead_time"}, inplace=True)
+
+    education_map = {"Primary": 1, "Secondary": 2, "Higher": 3}
+    data["education_level"] = data["education_level"].map(education_map).fillna(data["education_level"])
+
+    data["no_show_rate"] = (
+        data["previous_no_shows"]
+        / data["previous_appointments"].replace(0, np.nan)
+    ).fillna(0)
+    data["is_new_patient"] = (data["previous_appointments"] == 0).astype(int)
+    data["high_risk_patient"] = (data["previous_no_shows"] >= 2).astype(int)
+    data["travel_burden"] = data["distance_km"] * data["travel_time_min"]
+    data["long_distance"] = (data["distance_km"] > 15).astype(int)
+    data["high_travel_time"] = (data["travel_time_min"] > 45).astype(int)
+    data["long_lead_time"] = (data["lead_time"] > 21).astype(int)
+    data["short_lead_time"] = (data["lead_time"] <= 3).astype(int)
+    data["same_day"] = (data["lead_time"] == 0).astype(int)
+    data["is_weekend"] = data["appointment_day"].isin(["Saturday", "Sunday"]).astype(int)
+    data["is_elderly"] = (data["age"] >= 65).astype(int)
+    data["is_young_adult"] = ((data["age"] >= 18) & (data["age"] <= 30)).astype(int)
+    data["has_chronic_condition"] = (
+        (data["diabetes"] == 1) | (data["hypertension"] == 1) | (data["chronic_disease"] == 1)
+    ).astype(int)
+    data["multiple_chronic"] = (
+        data[["diabetes", "hypertension", "chronic_disease"]].sum(axis=1) >= 2
+    ).astype(int)
+    data["got_reminder"] = (
+        (data["sms_reminder"] == 1) | (data["email_reminder"] == 1)
+    ).astype(int)
+    data["multiple_reminders"] = (data["num_reminders"] >= 2).astype(int)
+    data["is_uninsured"] = (data["insurance_status"] == "Uninsured").astype(int)
+    data["is_unemployed"] = (data["employment_status"] == "Unemployed").astype(int)
+    data["risk_distance"] = data["high_risk_patient"] * data["long_distance"]
+    data["uninsured_distance"] = data["is_uninsured"] * data["long_distance"]
+    data["young_long_wait"] = data["is_young_adult"] * data["long_lead_time"]
+    data["rain_distance"] = data["rainy_day"] * data["long_distance"]
+
+    X = data.drop(columns=["no_show", "patient_id"], errors="ignore")
+    y = data["no_show"]
+
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+
+    nominal_cols = [
+        "gender",
+        "city_type",
+        "appointment_day",
+        "appointment_time_slot",
+        "department",
+        "employment_status",
+        "insurance_status",
+    ]
+
+    X_train = pd.get_dummies(X_train_raw, columns=nominal_cols, drop_first=True)
+    X_test = pd.get_dummies(X_test_raw, columns=nominal_cols, drop_first=True)
+    X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
+    X_test = X_test.reindex(columns=list(feature_columns), fill_value=0)
+
+    calculated_matrices = {}
+    for model_name, model in models.items():
+        X_eval = scaler.transform(X_test) if model_name == "Logistic Regression" else X_test
+        y_pred = model.predict(X_eval)
+        calculated_matrices[model_name] = confusion_matrix(y_test, y_pred).tolist()
+
+    for metric_model_name, metric_values in metrics.items():
+        if metric_model_name in calculated_matrices:
+            metric_values["Confusion Matrix"] = calculated_matrices[metric_model_name]
+            continue
+
+        normalized_metric_name = metric_model_name.lower().replace(" (tuned)", "").replace(" classifier", "").strip()
+        for model_name, matrix_values in calculated_matrices.items():
+            normalized_model_name = model_name.lower().replace(" (tuned)", "").replace(" classifier", "").strip()
+            if normalized_metric_name == normalized_model_name:
+                metric_values["Confusion Matrix"] = matrix_values
+                break
+
+    return metrics
+
+
 models, scaler, feature_columns, metrics = load_models()
 df = load_dataset()
+metrics = _add_confusion_matrices_if_missing(metrics, models, scaler, feature_columns, df)
 primary_model = models["XGBoost (Tuned)"]
 
 # ─── Feature column list for reference ────────────────────────────────────────
@@ -296,21 +363,41 @@ feature_cols_list = list(feature_columns)
 
 
 # ─── Sidebar Navigation ──────────────────────────────────────────────────────
+if "page" not in st.session_state:
+    st.session_state.page = "Prediction"
+
 with st.sidebar:
-    st.markdown("## 🏥 Navigation")
+    st.markdown("## Navigation")
     st.markdown("---")
 
-    page = st.radio(
-        "Go to",
-        ["🔮 Prediction", "📊 Model Performance", "💡 Insights"],
-        label_visibility="collapsed",
-    )
+    if st.button(
+        "Prediction",
+        use_container_width=True,
+        type="primary" if st.session_state.page == "Prediction" else "secondary",
+    ):
+        st.session_state.page = "Prediction"
+
+    if st.button(
+        "Model Performance",
+        use_container_width=True,
+        type="primary" if st.session_state.page == "Model Performance" else "secondary",
+    ):
+        st.session_state.page = "Model Performance"
+
+    if st.button(
+        "Insights",
+        use_container_width=True,
+        type="primary" if st.session_state.page == "Insights" else "secondary",
+    ):
+        st.session_state.page = "Insights"
+
+    page = st.session_state.page
 
     st.markdown("---")
     st.markdown(
         """
-        <div style='text-align:center; color:#475569; font-size:0.8rem; margin-top:1rem;'>
-            <p style='color:#94a3b8;font-weight:600;'>Clinical No-Show Predictor</p>
+        <div style='text-align:center; color:#ffffff; font-size:0.8rem; margin-top:1rem;'>
+            <p style='color:#ffffff;font-weight:600;'>Clinical No-Show Predictor</p>
             <p>Milestone 1 — ML System</p>
             <p style='margin-top:0.5rem;'>Built with Streamlit & Scikit-learn</p>
         </div>
@@ -322,11 +409,11 @@ with st.sidebar:
 # ═══════════════════════════════════════════════════════════════════════════════
 # PAGE 1: PREDICTION
 # ═══════════════════════════════════════════════════════════════════════════════
-if page == "🔮 Prediction":
+if page == "Prediction":
     st.markdown(
         """
         <div class="hero-header">
-            <h1>🔮 Appointment No-Show Prediction</h1>
+            <h1>Appointment No-Show Prediction</h1>
             <p>Enter patient details to predict the probability of missing a scheduled appointment</p>
         </div>
         """,
@@ -334,7 +421,7 @@ if page == "🔮 Prediction":
     )
 
     with st.form("prediction_form"):
-        st.markdown('<div class="section-header">📋 Patient Information</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Patient Information</div>', unsafe_allow_html=True)
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -350,7 +437,7 @@ if page == "🔮 Prediction":
             previous_appointments = st.number_input("Previous Appointments", min_value=0, max_value=30, value=3, step=1)
             previous_no_shows = st.number_input("Previous No-Shows", min_value=0, max_value=20, value=0, step=1)
 
-        st.markdown('<div class="section-header">🩺 Medical & Contact Details</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Medical & Contact Details</div>', unsafe_allow_html=True)
 
         col4, col5, col6 = st.columns(3)
         with col4:
@@ -366,7 +453,7 @@ if page == "🔮 Prediction":
             education_level = st.selectbox("Education Level", ["Primary", "Secondary", "Higher"])
             insurance_status = st.selectbox("Insurance Status", ["Insured", "Uninsured"])
 
-        st.markdown('<div class="section-header">📅 Appointment Details</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Appointment Details</div>', unsafe_allow_html=True)
 
         col7, col8, col9 = st.columns(3)
         with col7:
@@ -377,7 +464,7 @@ if page == "🔮 Prediction":
             rainy_day = st.selectbox("Rainy Day", [0, 1], format_func=lambda x: "Yes" if x else "No")
             public_holiday = st.selectbox("Public Holiday", [0, 1], format_func=lambda x: "Yes" if x else "No")
 
-        submitted = st.form_submit_button("🔍 Predict No-Show Risk", use_container_width=True)
+        submitted = st.form_submit_button("Predict No-Show Risk", use_container_width=True)
 
     if submitted:
         # Build feature vector matching the training columns (55 features)
@@ -480,25 +567,22 @@ if page == "🔮 Prediction":
         # Determine risk category
         if risk_pct < 40:
             risk_cat = "Low Risk"
-            risk_color = "#10b981"
+            risk_color = "#d4d4d4"
             risk_class = "risk-low"
-            risk_emoji = "✅"
             risk_desc = "Patient is likely to attend the appointment."
         elif risk_pct < 70:
             risk_cat = "Medium Risk"
-            risk_color = "#f59e0b"
+            risk_color = "#f5f5f5"
             risk_class = "risk-medium"
-            risk_emoji = "⚠️"
             risk_desc = "Patient may miss the appointment. Consider sending a reminder."
         else:
             risk_cat = "High Risk"
-            risk_color = "#ef4444"
+            risk_color = "#ffffff"
             risk_class = "risk-high"
-            risk_emoji = "🚨"
             risk_desc = "Patient is very likely to miss the appointment. Immediate intervention recommended."
 
         st.markdown("---")
-        st.markdown('<div class="section-header">📊 Prediction Results</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Prediction Results</div>', unsafe_allow_html=True)
 
         # Gauge Chart
         res_col1, res_col2 = st.columns([2, 1])
@@ -540,18 +624,17 @@ if page == "🔮 Prediction":
             st.markdown(
                 f"""
                 <div class="{risk_class}" style="margin-top:1rem;">
-                    <p style="font-size:3rem; margin:0;">{risk_emoji}</p>
                     <p class="risk-label" style="color:{risk_color};">{risk_cat}</p>
                     <p class="risk-description">{risk_desc}</p>
                     <p style="margin-top:1rem; font-size:2rem; font-weight:800; color:{risk_color};">{risk_pct:.1f}%</p>
-                    <p style="color:#64748b;font-size:0.8rem;">Probability of No-Show</p>
+                    <p style="color:#ffffff;font-size:0.8rem;">Probability of No-Show</p>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
         # Top contributing factors
-        st.markdown('<div class="section-header">🔍 Top Contributing Factors</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Top Contributing Factors</div>', unsafe_allow_html=True)
 
         if hasattr(primary_model, "feature_importances_"):
             importances = primary_model.feature_importances_
@@ -620,11 +703,11 @@ if page == "🔮 Prediction":
 # ═══════════════════════════════════════════════════════════════════════════════
 # PAGE 2: MODEL PERFORMANCE
 # ═══════════════════════════════════════════════════════════════════════════════
-elif page == "📊 Model Performance":
+elif page == "Model Performance":
     st.markdown(
         """
         <div class="hero-header">
-            <h1>📊 Model Performance Dashboard</h1>
+            <h1>Model Performance Dashboard</h1>
             <p>Compare evaluation metrics across all trained classification models</p>
         </div>
         """,
@@ -672,14 +755,14 @@ elif page == "📊 Model Performance":
     st.markdown(
         f"""
         <div style="text-align:center;margin:1rem 0;">
-            <span class="best-badge">🏆 Best Model: {best_model_name}</span>
+            <span class="best-badge">Best Model: {best_model_name}</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
     # ── Comparison Table ──
-    st.markdown('<div class="section-header">📋 Model Comparison Table</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Model Comparison Table</div>', unsafe_allow_html=True)
 
     table_data = []
     for name, m in metrics.items():
@@ -699,7 +782,7 @@ elif page == "📊 Model Performance":
     )
 
     # ── Bar Chart Comparison ──
-    st.markdown('<div class="section-header">📊 Metric Comparison Charts</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Metric Comparison Charts</div>', unsafe_allow_html=True)
 
     metric_names = ["Accuracy", "Precision", "Recall", "F1", "ROC-AUC"]
     model_names = list(metrics.keys())
@@ -748,9 +831,23 @@ elif page == "📊 Model Performance":
     st.plotly_chart(fig_comparison, use_container_width=True)
 
     # ── Confusion Matrices ──
-    st.markdown('<div class="section-header">🔢 Confusion Matrices</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Confusion Matrices</div>', unsafe_allow_html=True)
 
-    cm_cols = st.columns(len(metrics))
+    cm_candidates = []
+    for name, m in metrics.items():
+        cm_value = (
+            m.get("Confusion Matrix")
+            or m.get("confusion_matrix")
+            or m.get("confusionMatrix")
+            or m.get("cm")
+        )
+        if cm_value is not None:
+            cm_candidates.append((name, np.array(cm_value)))
+
+    if not cm_candidates:
+        st.info("Confusion matrix data is not available in metrics.pkl.")
+
+    cm_cols = st.columns(len(cm_candidates)) if cm_candidates else []
     cm_colors = [
         [[0, "rgba(14,165,233,0.05)"], [1, "rgba(14,165,233,0.7)"]],
         [[0, "rgba(20,184,166,0.05)"], [1, "rgba(20,184,166,0.7)"]],
@@ -758,9 +855,8 @@ elif page == "📊 Model Performance":
         [[0, "rgba(34,211,238,0.05)"], [1, "rgba(34,211,238,0.7)"]],
     ]
 
-    for i, (name, m) in enumerate(metrics.items()):
+    for i, (name, cm) in enumerate(cm_candidates):
         with cm_cols[i]:
-            cm = np.array(m["Confusion Matrix"])
             labels = ["Show", "No-Show"]
 
             fig_cm = go.Figure(data=go.Heatmap(
@@ -786,7 +882,7 @@ elif page == "📊 Model Performance":
             st.plotly_chart(fig_cm, use_container_width=True)
 
     # ── Radar Chart ──
-    st.markdown('<div class="section-header">🎯 Model Radar Comparison</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Model Radar Comparison</div>', unsafe_allow_html=True)
 
     radar_metrics = ["Accuracy", "Precision", "Recall", "F1", "ROC-AUC"]
     fig_radar = go.Figure()
@@ -836,11 +932,11 @@ elif page == "📊 Model Performance":
 # ═══════════════════════════════════════════════════════════════════════════════
 # PAGE 3: INSIGHTS
 # ═══════════════════════════════════════════════════════════════════════════════
-elif page == "💡 Insights":
+elif page == "Insights":
     st.markdown(
         """
         <div class="hero-header">
-            <h1>💡 Data Insights & Analysis</h1>
+            <h1>Data Insights & Analysis</h1>
             <p>Explore patterns and trends in the hospital appointment dataset</p>
         </div>
         """,
@@ -888,7 +984,7 @@ elif page == "💡 Insights":
         )
 
     # ── Feature Importance ──
-    st.markdown('<div class="section-header">🏆 Feature Importance (XGBoost)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Feature Importance (XGBoost)</div>', unsafe_allow_html=True)
 
     if hasattr(primary_model, "feature_importances_"):
         importances = primary_model.feature_importances_
@@ -951,7 +1047,7 @@ elif page == "💡 Insights":
         st.plotly_chart(fig_imp, use_container_width=True)
 
     # ── No-Show by Department ──
-    st.markdown('<div class="section-header">🏥 No-Show Rate by Department</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">No-Show Rate by Department</div>', unsafe_allow_html=True)
 
     dept_stats = df.groupby("department")["no_show"].mean().sort_values(ascending=False).reset_index()
     dept_stats.columns = ["Department", "No-Show Rate"]
@@ -982,7 +1078,7 @@ elif page == "💡 Insights":
     i_col1, i_col2 = st.columns(2)
 
     with i_col1:
-        st.markdown('<div class="section-header">📅 No-Show Rate by Day</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">No-Show Rate by Day</div>', unsafe_allow_html=True)
         day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         day_stats = df.groupby("appointment_day")["no_show"].mean().reindex(day_order).reset_index()
         day_stats.columns = ["Day", "No-Show Rate"]
@@ -1013,7 +1109,7 @@ elif page == "💡 Insights":
         st.plotly_chart(fig_day, use_container_width=True)
 
     with i_col2:
-        st.markdown('<div class="section-header">🕐 No-Show Rate by Time Slot</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">No-Show Rate by Time Slot</div>', unsafe_allow_html=True)
         time_stats = df.groupby("appointment_time_slot")["no_show"].mean().reset_index()
         time_stats.columns = ["Time Slot", "No-Show Rate"]
         time_stats["No-Show Rate"] = time_stats["No-Show Rate"] * 100
@@ -1040,7 +1136,7 @@ elif page == "💡 Insights":
         st.plotly_chart(fig_time, use_container_width=True)
 
     # ── Age Distribution ──
-    st.markdown('<div class="section-header">👤 Age Distribution by Show/No-Show</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Age Distribution by Show/No-Show</div>', unsafe_allow_html=True)
 
     fig_age = go.Figure()
     fig_age.add_trace(go.Histogram(
@@ -1069,7 +1165,7 @@ elif page == "💡 Insights":
     st.plotly_chart(fig_age, use_container_width=True)
 
     # ── SMS Reminder Impact ──
-    st.markdown('<div class="section-header">📱 Impact of SMS Reminders</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Impact of SMS Reminders</div>', unsafe_allow_html=True)
 
     sms_col1, sms_col2 = st.columns(2)
 
@@ -1129,7 +1225,7 @@ elif page == "💡 Insights":
         st.plotly_chart(fig_ins, use_container_width=True)
 
     # ── Correlation Heatmap ──
-    st.markdown('<div class="section-header">🔗 Feature Correlation Heatmap</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Feature Correlation Heatmap</div>', unsafe_allow_html=True)
 
     numeric_df = df.select_dtypes(include=[np.number])
     corr = numeric_df.corr()
@@ -1156,15 +1252,15 @@ elif page == "💡 Insights":
     st.plotly_chart(fig_corr, use_container_width=True)
 
     # ── Key Findings ──
-    st.markdown('<div class="section-header">📌 Key Findings</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Key Findings</div>', unsafe_allow_html=True)
 
     st.markdown(
         """
         <div class="glass-card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div style="padding:1rem;">
-                    <h4 style="color:#0ea5e9; margin:0 0 0.5rem;">🔬 Model Insights</h4>
-                    <ul style="color:#94a3b8; margin:0; padding-left:1.2rem;">
+                    <h4 style="color:#ffffff; margin:0 0 0.5rem;">Model Insights</h4>
+                    <ul style="color:#ffffff; margin:0; padding-left:1.2rem;">
                         <li>XGBoost achieves the best overall performance with highest F1 score</li>
                         <li>Random Forest provides strong generalization</li>
                         <li>Logistic Regression serves as a solid interpretable baseline</li>
@@ -1172,8 +1268,8 @@ elif page == "💡 Insights":
                     </ul>
                 </div>
                 <div style="padding:1rem;">
-                    <h4 style="color:#14b8a6; margin:0 0 0.5rem;">📊 Data Insights</h4>
-                    <ul style="color:#94a3b8; margin:0; padding-left:1.2rem;">
+                    <h4 style="color:#ffffff; margin:0 0 0.5rem;">Data Insights</h4>
+                    <ul style="color:#ffffff; margin:0; padding-left:1.2rem;">
                         <li>Previous no-show history is a strong predictor</li>
                         <li>Lead time (waiting days) significantly impacts attendance</li>
                         <li>Distance and travel time influence no-show probability</li>
@@ -1191,7 +1287,7 @@ elif page == "💡 Insights":
 st.markdown(
     """
     <div class="footer">
-        <p>🏥 Hospital Appointment No-Show Prediction System — Milestone 1 | Built with Streamlit, Scikit-learn & Plotly</p>
+        <p>Hospital Appointment No-Show Prediction System — Milestone 1 | Built with Streamlit, Scikit-learn & Plotly</p>
     </div>
     """,
     unsafe_allow_html=True,
