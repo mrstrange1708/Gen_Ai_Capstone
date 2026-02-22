@@ -4,7 +4,6 @@ scikit-learn
 matplotlib
 seaborn
 plotly
-streamlit
-altair==4.2.2
+streamlit==1.38.0
 joblib
 xgboost
