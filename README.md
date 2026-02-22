@@ -157,7 +157,7 @@ The `runtime.txt` ensures Python 3.11 is used. The `requirements.txt` handles al
 
 ## Team
 
-- **Shaik Junaid Sami** and team
+- **Shaik Junaid Sami , Abhinay and Srikar**
 
 ---
 
