@@ -398,7 +398,6 @@ with st.sidebar:
         """
         <div style='text-align:center; color:#ffffff; font-size:0.8rem; margin-top:1rem;'>
             <p style='color:#ffffff;font-weight:600;'>Clinical No-Show Predictor</p>
-            <p>Milestone 1 — ML System</p>
             <p style='margin-top:0.5rem;'>Built with Streamlit & Scikit-learn</p>
         </div>
         """,
