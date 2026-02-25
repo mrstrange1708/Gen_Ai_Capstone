@@ -1286,7 +1286,7 @@ elif page == "Insights":
 st.markdown(
     """
     <div class="footer">
-        <p>Hospital Appointment No-Show Prediction System — Milestone 1 | Built with Streamlit, Scikit-learn & Plotly</p>
+        <p>Hospital Appointment No-Show Prediction System | Built with Streamlit, Scikit-learn & Plotly</p>
     </div>
     """,
     unsafe_allow_html=True,
