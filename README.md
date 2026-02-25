@@ -130,10 +130,10 @@ The training pipeline is in `noteBooks/CLINICAL_APPOINTMENT_NO_SHOW_PREDICTION.i
 
 | Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
 |-------|----------|-----------|--------|----------|---------|
-| Logistic Regression | 67.5% | 89.0% | 66.0% | 75.8% | 0.764 |
-| Decision Tree | 65.1% | 87.3% | 64.2% | 74.0% | 0.715 |
-| Random Forest | 71.8% | 86.8% | 74.9% | 80.4% | 0.755 |
-| **XGBoost (Tuned)** | **78.4%** | **80.2%** | **95.8%** | **87.3%** | **0.762** |
+| Logistic Regression | 67.5% | 89.0% | 66.0% | 75.8% | 76.4% |
+| Decision Tree | 65.1% | 87.3% | 64.2% | 74.0% | 71.5% |
+| Random Forest | 71.8% | 86.8% | 74.9% | 80.4% | 75.5% |
+| **XGBoost (Tuned)** | **78.4%** | **80.2%** | **95.8%** | **87.3%** | ** 76.2%** |
 
 > XGBoost (Tuned) is the **primary model** used for predictions.
 
