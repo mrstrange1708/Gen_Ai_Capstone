@@ -771,7 +771,7 @@ elif page == "Model Performance":
             "Precision": f"{m['Precision']*100:.2f}%",
             "Recall": f"{m['Recall']*100:.2f}%",
             "F1 Score": f"{m['F1']*100:.2f}%",
-            "ROC-AUC": f"{m['ROC-AUC']:.4f}",
+            "ROC-AUC": f"{m['ROC-AUC']*100:.2f}%",
         })
 
     st.dataframe(
