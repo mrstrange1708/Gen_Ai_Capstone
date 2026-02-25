@@ -8,8 +8,7 @@ A machine learning–based healthcare operations system that predicts the likeli
 
 ## Live Demo
 
-Deployed on **Streamlit Community Cloud**:  
-🔗 [Open App](https://gen-ai-capstone.streamlit.app)
+Deployed on **Streamlit Community Cloud**: 🔗 [Open App](https://gen-ai-capstone.streamlit.app)
 
 ---
 
