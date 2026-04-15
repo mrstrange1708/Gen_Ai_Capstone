@@ -7,3 +7,10 @@ plotly
 streamlit==1.38.0
 joblib
 xgboost
+langchain
+langchain-community
+langgraph
+chromadb
+sentence-transformers
+langchain-groq
+python-dotenv

@@ -1,0 +1,25 @@
+1. Patients with previous no-shows are at high risk of missing future appointments; mandate a human verification call 48 hours prior.
+2. SMS reminders sent exactly 24 hours before appointments reduce no-show rates by up to 30%.
+3. Long lead times (over 21 days) between booking and appointment dramatically increase no-show probability; schedule midway touchpoints to confirm.
+4. Offering flexible, self-serve rescheduling links in confirmation texts improves patient attendance.
+5. Teleconsultation can reduce missed appointments for high-risk patients facing transportation or distance barriers (over 15km).
+6. Patients with multiple chronic conditions (e.g., diabetes and hypertension) should be evaluated for transportation assistance or remote monitoring.
+7. Uninsured patients face financial barriers; provide billing transparency or financial counseling before the appointment.
+8. Unemployed patients have higher no-show rates; offer flexible hours or subsidized transportation if available.
+9. Elderly patients (65+) may struggle with digital reminders; prioritize phone outreach or caregiver coordination.
+10. Young adults (18-30) respond best to asynchronous communication like SMS or WhatsApp rather than voice calls.
+11. Appointments scheduled for early mornings on Mondays have higher missed rates; send a Sunday evening reminder.
+12. Inclement weather conditions (e.g., heavy rain) disproportionately affect patients traveling long distances; proactively offer telehealth switches.
+13. First-time clinic patients lack routine; provide clear wayfinding, parking instructions, and arrival expectations.
+14. Patients with a 'high travel burden' (>45 minutes) should be prioritized for block scheduling to minimize the number of required trips.
+15. If a patient misses two consecutive appointments, flag for a social worker outreach to assess socioeconomic barriers.
+16. Sending an email reminder 3 days prior, followed by an SMS 1 day prior, is the optimal cadence for specialty departments (e.g., Cardiology, Orthopedics).
+17. Pediatric appointments often rely on parent availability; ensure reminders allow calendar integration for working parents.
+18. Same-day appointments have the lowest no-show rates; utilize a waitlist system to fill sudden cancellations.
+19. Patients who frequently cancel and reschedule should be required to speak directly with triage before rebooking.
+20. Overbooking by 10-15% is permissible only in slots historically known for high no-shows (e.g., Friday afternoons).
+21. If a patient is flagged as "High Risk," assigning a dedicated care coordinator for a 5-minute pre-visit prep call reduces no-shows and improves satisfaction.
+22. Evening appointment slots have higher attendance rates for blue-collar employed patients; limit daytime scheduling for this demographic.
+23. "No-show rate thresholds": Departments exceeding a 15% no-show rate must implement mandatory SMS confirmation.
+24. Language or literacy barriers can cause confusion; ensure reminders are sent in the patient's primary language.
+25. Patients with a history of missed appointments should be offered slots later in the day, as morning logistics are common failure points.
