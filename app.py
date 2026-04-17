@@ -391,6 +391,13 @@ with st.sidebar:
     ):
         st.session_state.page = "Insights"
 
+    if st.button(
+        "🤖 Care Coordination Agent",
+        use_container_width=True,
+        type="primary" if st.session_state.page == "Care Coordination Agent" else "secondary",
+    ):
+        st.session_state.page = "Care Coordination Agent"
+
     page = st.session_state.page
 
     st.markdown("---")
@@ -632,9 +639,7 @@ if page == "Prediction":
                 unsafe_allow_html=True,
             )
 
-        # Call the external AI Agent Pipeline
-        from agent_ui import render_agent_pipeline
-        render_agent_pipeline(input_data, prob)
+        # Agent pipeline moved to dedicated 'Care Coordination Agent' page
 
         # Top contributing factors
         st.markdown('<div class="section-header">Top Contributing Factors</div>', unsafe_allow_html=True)
@@ -1284,6 +1289,177 @@ elif page == "Insights":
         """,
         unsafe_allow_html=True,
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 4: CARE COORDINATION AGENT
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Care Coordination Agent":
+    st.markdown(
+        """
+        <div class="hero-header">
+            <h1>🤖 Care Coordination Agent</h1>
+            <p>AI-powered agentic pipeline — the LLM decides which tools to call and when</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div class="glass-card" style="padding:1rem; margin-bottom:1rem;">
+            <p style="color:#38bdf8; font-weight:600; margin:0;">Architecture</p>
+            <p style="color:#94a3b8; font-size:0.85rem; margin:0.3rem 0;">
+            <strong>Main Agent:</strong> Llama 3.3 70B (Groq) — ReAct loop with 5 tools<br>
+            <strong>Critic:</strong> Qwen QwQ 32B (Groq) — evaluates on 3 criteria<br>
+            <strong>Tools:</strong> predict_noshow, calculate_risk_flags, retrieve_guidelines,
+            analyze_risk_factors, generate_intervention_plan<br>
+            <strong>Retry:</strong> Up to 2 revision cycles if critic rejects the plan
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    with st.form("agent_form"):
+        st.markdown(
+            '<div class="section-header">Patient Information</div>',
+            unsafe_allow_html=True,
+        )
+
+        a_col1, a_col2, a_col3 = st.columns(3)
+        with a_col1:
+            a_age = st.number_input("Age", min_value=0, max_value=120, value=35, step=1, key="a_age")
+            a_gender = st.selectbox("Gender", ["Male", "Female"], key="a_gender")
+            a_city_type = st.selectbox("City Type", ["Urban", "Suburban", "Other"], key="a_city")
+        with a_col2:
+            a_distance_km = st.number_input("Distance (km)", min_value=0.0, max_value=100.0, value=10.0, step=0.5, key="a_dist")
+            a_travel_time_min = st.number_input("Travel Time (min)", min_value=0.0, max_value=300.0, value=30.0, step=5.0, key="a_travel")
+            a_department = st.selectbox("Department", ["Cardiology", "Dermatology", "General", "Orthopedics", "Pediatrics"], key="a_dept")
+        with a_col3:
+            a_lead_time = st.number_input("Lead Time (days)", min_value=0, max_value=60, value=5, step=1, key="a_lead")
+            a_previous_appointments = st.number_input("Previous Appointments", min_value=0, max_value=30, value=3, step=1, key="a_prev_appt")
+            a_previous_no_shows = st.number_input("Previous No-Shows", min_value=0, max_value=20, value=0, step=1, key="a_prev_ns")
+
+        st.markdown(
+            '<div class="section-header">Medical & Contact Details</div>',
+            unsafe_allow_html=True,
+        )
+
+        a_col4, a_col5, a_col6 = st.columns(3)
+        with a_col4:
+            a_diabetes = st.selectbox("Diabetes", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_diab")
+            a_hypertension = st.selectbox("Hypertension", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_hyp")
+            a_chronic_disease = st.selectbox("Chronic Disease", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_chronic")
+        with a_col5:
+            a_sms_reminder = st.selectbox("SMS Reminder", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_sms")
+            a_email_reminder = st.selectbox("Email Reminder", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_email")
+            a_num_reminders = st.number_input("Total Reminders", min_value=0, max_value=5, value=1, step=1, key="a_nrem")
+        with a_col6:
+            a_employment_status = st.selectbox("Employment", ["Employed", "Unemployed", "Student", "Other"], key="a_emp")
+            a_education_level = st.selectbox("Education Level", ["Primary", "Secondary", "Higher"], key="a_edu")
+            a_insurance_status = st.selectbox("Insurance Status", ["Insured", "Uninsured"], key="a_ins")
+
+        st.markdown(
+            '<div class="section-header">Appointment Details</div>',
+            unsafe_allow_html=True,
+        )
+
+        a_col7, a_col8, a_col9 = st.columns(3)
+        with a_col7:
+            a_appointment_day = st.selectbox("Appointment Day", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], key="a_day")
+        with a_col8:
+            a_appointment_time_slot = st.selectbox("Time Slot", ["Morning", "Afternoon", "Evening"], key="a_time")
+        with a_col9:
+            a_rainy_day = st.selectbox("Rainy Day", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_rain")
+            a_public_holiday = st.selectbox("Public Holiday", [0, 1], format_func=lambda x: "Yes" if x else "No", key="a_holiday")
+
+
+        a_submitted = st.form_submit_button(
+            "🚀 Run Agent Pipeline", use_container_width=True
+        )
+
+    if a_submitted:
+        # ── Build 56-feature dictionary (same engineering as Prediction page) ──
+        education_map = {"Primary": 1, "Secondary": 2, "Higher": 3}
+
+        a_no_show_rate = a_previous_no_shows / a_previous_appointments if a_previous_appointments > 0 else 0
+        a_is_new_patient = 1 if a_previous_appointments == 0 else 0
+        a_high_risk_patient = 1 if a_previous_no_shows >= 2 else 0
+        a_travel_burden = a_distance_km * a_travel_time_min
+        a_long_distance = 1 if a_distance_km > 15 else 0
+        a_high_travel_time = 1 if a_travel_time_min > 45 else 0
+        a_long_lead_time = 1 if a_lead_time > 21 else 0
+        a_short_lead_time = 1 if a_lead_time <= 3 else 0
+        a_same_day = 1 if a_lead_time == 0 else 0
+        a_is_weekend = 1 if a_appointment_day in ["Saturday", "Sunday"] else 0
+        a_is_elderly = 1 if a_age >= 65 else 0
+        a_is_young_adult = 1 if 18 <= a_age <= 30 else 0
+        a_has_chronic = 1 if (a_diabetes == 1 or a_hypertension == 1 or a_chronic_disease == 1) else 0
+        a_multiple_chronic = 1 if (a_diabetes + a_hypertension + a_chronic_disease) >= 2 else 0
+        a_got_reminder = 1 if (a_sms_reminder == 1 or a_email_reminder == 1) else 0
+        a_multiple_reminders = 1 if a_num_reminders >= 2 else 0
+        a_is_uninsured = 1 if a_insurance_status == "Uninsured" else 0
+        a_is_unemployed = 1 if a_employment_status == "Unemployed" else 0
+        a_risk_distance = a_high_risk_patient * a_long_distance
+        a_uninsured_distance = a_is_uninsured * a_long_distance
+        a_young_long_wait = a_is_young_adult * a_long_lead_time
+        a_rain_distance = a_rainy_day * a_long_distance
+
+        agent_input_data = {
+            "age": a_age, "distance_km": a_distance_km, "travel_time_min": a_travel_time_min,
+            "lead_time": a_lead_time, "previous_appointments": a_previous_appointments,
+            "previous_no_shows": a_previous_no_shows, "diabetes": a_diabetes,
+            "hypertension": a_hypertension, "chronic_disease": a_chronic_disease,
+            "sms_reminder": a_sms_reminder, "email_reminder": a_email_reminder,
+            "num_reminders": a_num_reminders, "education_level": education_map[a_education_level],
+            "rainy_day": a_rainy_day, "public_holiday": a_public_holiday,
+            "no_show_rate": a_no_show_rate, "is_new_patient": a_is_new_patient,
+            "high_risk_patient": a_high_risk_patient, "travel_burden": a_travel_burden,
+            "long_distance": a_long_distance, "high_travel_time": a_high_travel_time,
+            "long_lead_time": a_long_lead_time, "short_lead_time": a_short_lead_time,
+            "same_day": a_same_day, "is_weekend": a_is_weekend,
+            "is_elderly": a_is_elderly, "is_young_adult": a_is_young_adult,
+            "has_chronic_condition": a_has_chronic, "multiple_chronic": a_multiple_chronic,
+            "got_reminder": a_got_reminder, "multiple_reminders": a_multiple_reminders,
+            "is_uninsured": a_is_uninsured, "is_unemployed": a_is_unemployed,
+            "risk_distance": a_risk_distance, "uninsured_distance": a_uninsured_distance,
+            "young_long_wait": a_young_long_wait, "rain_distance": a_rain_distance,
+            "gender_Male": 1 if a_gender == "Male" else 0,
+            "city_type_Suburban": 1 if a_city_type == "Suburban" else 0,
+            "city_type_Urban": 1 if a_city_type == "Urban" else 0,
+            "appointment_day_Monday": 1 if a_appointment_day == "Monday" else 0,
+            "appointment_day_Saturday": 1 if a_appointment_day == "Saturday" else 0,
+            "appointment_day_Sunday": 1 if a_appointment_day == "Sunday" else 0,
+            "appointment_day_Thursday": 1 if a_appointment_day == "Thursday" else 0,
+            "appointment_day_Tuesday": 1 if a_appointment_day == "Tuesday" else 0,
+            "appointment_day_Wednesday": 1 if a_appointment_day == "Wednesday" else 0,
+            "appointment_time_slot_Evening": 1 if a_appointment_time_slot == "Evening" else 0,
+            "appointment_time_slot_Morning": 1 if a_appointment_time_slot == "Morning" else 0,
+            "department_Dermatology": 1 if a_department == "Dermatology" else 0,
+            "department_General": 1 if a_department == "General" else 0,
+            "department_Orthopedics": 1 if a_department == "Orthopedics" else 0,
+            "department_Pediatrics": 1 if a_department == "Pediatrics" else 0,
+            "employment_status_Other": 1 if a_employment_status == "Other" else 0,
+            "employment_status_Student": 1 if a_employment_status == "Student" else 0,
+            "employment_status_Unemployed": 1 if a_employment_status == "Unemployed" else 0,
+            "insurance_status_Uninsured": 1 if a_insurance_status == "Uninsured" else 0,
+        }
+
+        # ── Run the ReAct Agent Pipeline ──
+        with st.spinner("🤖 Agent is reasoning... calling tools dynamically..."):
+            from agent.graph import run_agent_pipeline
+            from agent_ui import render_agent_results
+
+            pipeline_result = run_agent_pipeline(
+                patient_data=agent_input_data,
+                processed_features=list(agent_input_data.values()),
+                user_query="What interventions should we take for this patient?",
+            )
+
+        # ── Render the 7-section display ──
+        st.markdown("---")
+        render_agent_results(pipeline_result)
 
 
 # ─── Footer ──────────────────────────────────────────────────────────────────

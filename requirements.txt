@@ -9,8 +9,10 @@ joblib
 xgboost
 langchain
 langchain-community
+langchain-text-splitters
 langgraph
 chromadb
 sentence-transformers
 langchain-groq
 python-dotenv
+shap
