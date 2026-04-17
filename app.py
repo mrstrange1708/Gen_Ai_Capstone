@@ -580,21 +580,6 @@ if page == "Prediction":
             risk_class = "risk-high"
             risk_desc = "Patient is very likely to miss the appointment. Immediate intervention recommended."
 
-        # ---- AGENTIC CARE COORDINATION ----
-        with st.spinner("Agentic AI is analyzing risk and retrieving best-practice interventions..."):
-            from agent.graph import build_graph
-            from dotenv import load_dotenv
-            import os
-            load_dotenv()
-            
-            app_graph = build_graph()
-            agent_input = {
-                "patient_data": input_data,
-                "risk_score": float(prob)
-            }
-            agent_result = app_graph.invoke(agent_input)
-            final_output = agent_result.get("final_output", {})
-
         st.markdown("---")
         st.markdown('<div class="section-header">Prediction Results</div>', unsafe_allow_html=True)
 
@@ -647,28 +632,9 @@ if page == "Prediction":
                 unsafe_allow_html=True,
             )
 
-        st.markdown('<div class="section-header">Agentic Care Coordination (AI Assistant)</div>', unsafe_allow_html=True)
-        st.markdown("""
-        <p style="color: #94a3b8; font-size: 0.9rem;">
-        The AI assistant has autonomously analyzed the patient risk profile against hospital best practices (RAG) to recommend the following interventions.
-        </p>
-        """, unsafe_allow_html=True)
-        
-        agent_col1, agent_col2 = st.columns(2)
-        with agent_col1:
-            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.markdown("<h4 style='color:#38bdf8;'>Key Risk Factors Identified</h4>", unsafe_allow_html=True)
-            for factor in final_output.get("Key_Factors", []):
-                st.markdown(f"- {factor}")
-            st.markdown(f"<p style='margin-top:1rem; color:#94a3b8;'><strong>AI Confidence:</strong> {final_output.get('Confidence_Score', 'N/A')}</p>", unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        with agent_col2:
-            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.markdown("<h4 style='color:#10b981;'>Recommended Actions</h4>", unsafe_allow_html=True)
-            for i, action in enumerate(final_output.get("Recommended_Actions", []), 1):
-                st.markdown(f"{i}. {action}")
-            st.markdown('</div>', unsafe_allow_html=True)
+        # Call the external AI Agent Pipeline
+        from agent_ui import render_agent_pipeline
+        render_agent_pipeline(input_data, prob)
 
         # Top contributing factors
         st.markdown('<div class="section-header">Top Contributing Factors</div>', unsafe_allow_html=True)

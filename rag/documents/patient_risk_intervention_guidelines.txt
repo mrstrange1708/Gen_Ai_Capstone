@@ -1,0 +1,103 @@
+CLINICAL APPOINTMENT NO-SHOW INTERVENTION GUIDELINES
+Source: Healthcare Operations Best Practice Manual
+Version: 2024
+
+SECTION 1: PRIOR NO-SHOW HISTORY
+
+Patients with one or more previous appointment no-shows represent the single 
+strongest predictor of future non-attendance. Research across outpatient 
+settings consistently shows that a patient with three or more prior no-shows 
+has a 60-70% probability of missing their next appointment without intervention.
+
+Recommended Protocol:
+For patients with 1-2 prior no-shows, a mandatory automated SMS reminder 
+should be dispatched 48 hours before the appointment, followed by a 
+confirmation requirement (reply YES to confirm). Failure to confirm within 
+12 hours should trigger a human verification call from the scheduling team.
+
+For patients with 3 or more prior no-shows, assign a dedicated care 
+coordinator for a 5-minute pre-visit prep call. This call should confirm 
+logistics, address any barriers the patient may be facing, and reinforce 
+the importance of attendance. Studies show this single intervention reduces 
+repeat no-shows by up to 40% in high-risk populations.
+
+If a patient misses two consecutive appointments without prior cancellation, 
+the case must be escalated to a social worker for a socioeconomic barrier 
+assessment. Common underlying causes include lack of transportation, 
+childcare conflicts, financial anxiety about treatment costs, and untreated 
+mental health conditions that impair scheduling behavior.
+
+SECTION 2: APPOINTMENT LEAD TIME
+
+Lead time — the number of days between booking and the scheduled appointment 
+— is a strong independent predictor of no-show. Patients who book appointments 
+more than 21 days in advance show significantly higher no-show rates compared 
+to those with lead times under 7 days.
+
+The recommended intervention framework based on lead time is as follows:
+
+Lead time 0-7 days (same-day or near-term):
+Same-day appointments have the lowest no-show rates across all departments. 
+Maintain an active waitlist system to fill cancellations. No additional 
+intervention required beyond standard confirmation.
+
+Lead time 8-21 days:
+Send an initial confirmation email at booking. Follow up with an SMS reminder 
+3 days before the appointment and again 24 hours before. The 24-hour SMS 
+reminder has demonstrated a reduction of no-show rates by up to 30% across 
+general outpatient departments.
+
+Lead time over 21 days:
+Schedule a midway touchpoint at approximately the halfway mark between 
+booking and appointment. For example, if a patient books 30 days in advance, 
+send an engagement message at day 15 confirming the appointment and providing 
+rescheduling options. The optimal reminder cadence for specialty departments 
+such as Cardiology and Orthopedics is: email at 3 days prior, SMS at 1 day 
+prior. This dual-channel approach outperforms single-channel reminders by 18%.
+
+SECTION 3: INSURANCE STATUS AND FINANCIAL BARRIERS
+
+Uninsured patients face compounding barriers to attendance that go beyond 
+scheduling. Financial anxiety — specifically uncertainty about what the 
+visit will cost — is a major driver of no-shows in this cohort.
+
+Protocol for uninsured patients:
+Before the appointment, provide a clear billing transparency communication 
+that outlines the expected cost of the visit, available payment plans, and 
+any subsidized or sliding-scale fee options. This should be delivered via 
+SMS and email at the time of booking, not the day before.
+
+If financial counseling services are available at the facility, proactively 
+offer a 10-minute pre-appointment phone consultation with the billing 
+department. Patients who receive this pre-visit financial clarity show 
+significantly improved attendance rates.
+
+For uninsured patients who also have long travel distances (over 15km), 
+consider offering teleconsultation as an alternative to in-person attendance 
+where clinically appropriate. This combination of financial barrier plus 
+travel barrier places these patients in the highest-risk tier.
+
+SECTION 4: REMINDER CHANNEL AND TIMING OPTIMIZATION
+
+The effectiveness of appointment reminders is highly dependent on both 
+the channel used and the timing of delivery.
+
+SMS reminders sent exactly 24 hours before an appointment are the most 
+effective single-point intervention, reducing no-show rates by 25-30% 
+across all patient demographics. The message should include: appointment 
+date, time, department, physician name, and a one-tap rescheduling link.
+
+Offering a self-serve rescheduling link in reminder messages is critical. 
+Patients who intend to cancel but find the process difficult will simply 
+not show up. A low-friction cancellation and rescheduling option converts 
+potential no-shows into rescheduled appointments, preserving the slot 
+availability for waitlisted patients.
+
+Voice call reminders are more effective than SMS for patients aged 65 and 
+above, as this demographic has lower smartphone literacy and may not reliably 
+read SMS messages. For elderly patients, prioritize phone outreach or 
+coordinate with a designated caregiver contact.
+
+Young adults aged 18-30 respond best to asynchronous digital communication 
+such as SMS or WhatsApp. Avoid voice call reminders for this group as they 
+have low phone answer rates for unknown numbers.

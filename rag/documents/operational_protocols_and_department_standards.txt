@@ -1,0 +1,119 @@
+CLINIC OPERATIONAL PROTOCOLS FOR APPOINTMENT MANAGEMENT
+Source: Hospital Administration and Quality Standards Manual
+Version: 2024
+
+SECTION 1: DEPARTMENT-LEVEL NO-SHOW THRESHOLDS
+
+Each clinical department must monitor its rolling 30-day no-show rate 
+against established thresholds to determine required intervention intensity.
+
+Threshold Level 1 (no-show rate below 10%):
+Standard reminder protocol is sufficient. No additional operational changes 
+required. Continue monitoring.
+
+Threshold Level 2 (no-show rate 10-15%):
+Department must implement mandatory SMS confirmation for all appointments. 
+Patients who do not confirm within 24 hours of the reminder receive a 
+follow-up automated call. Analyze top contributing patient-level factors 
+to identify whether a specific demographic or risk profile is driving the rate.
+
+Threshold Level 3 (no-show rate above 15%):
+Department must implement mandatory SMS confirmation AND conduct a formal 
+operational review within 30 days. Permissible to introduce controlled 
+overbooking at 10-15% in slots historically known for high no-show rates 
+(e.g., Friday afternoons, early Monday mornings). Overbooking must not 
+exceed 15% and must be applied only to documented high-no-show slots — 
+blanket overbooking is an unacceptable protocol that degrades patient 
+experience and creates resource bottlenecks.
+
+SECTION 2: HIGH-RISK PATIENT MANAGEMENT WORKFLOW
+
+When a patient is algorithmically flagged as HIGH RISK for no-show 
+(probability score above 0.70), the following workflow must be executed:
+
+Step 1 — Immediate confirmation dispatch:
+Send automated SMS confirmation request within 1 hour of the flag being 
+raised. Message must include a one-tap confirm/reschedule option.
+
+Step 2 — Care coordinator assignment:
+Assign a dedicated care coordinator for a 5-minute pre-visit preparation 
+call. This call serves three purposes: logistical confirmation (does the 
+patient know where to go, how to get there), barrier identification 
+(is there anything making attendance difficult), and motivational engagement 
+(reinforcing the clinical importance of the visit).
+
+Step 3 — Day-before check:
+If no confirmation has been received 24 hours before the appointment, 
+the care coordinator makes a direct phone call. If the patient is unreachable, 
+the slot is placed on a priority waitlist for a waitlisted patient.
+
+Step 4 — Post-no-show protocol:
+If the patient does not attend, do not simply reschedule. Initiate a 
+barrier identification outreach within 48 hours to understand why attendance 
+failed. Use this data to update the patient's risk profile and care plan.
+
+SECTION 3: SCHEDULING BEST PRACTICES
+
+Monday morning slots (7:00-9:00 AM) and Friday afternoon slots (3:00-6:00 PM) 
+consistently show the highest no-show rates across departments. Where 
+operationally possible, reserve these slots for low-risk patients or same-day 
+bookings from the waitlist.
+
+Same-day appointment slots have the lowest no-show rates of any scheduling 
+type, often below 5%. An active waitlist system should be maintained to 
+fill cancellations and gaps with same-day patients who are ready and available. 
+This maximizes clinical capacity without increasing total appointment supply.
+
+Patients who have a documented pattern of cancelling and rescheduling 
+multiple times must be required to speak directly with triage before 
+any further rebooking is accepted. This conversation serves to identify 
+underlying barriers and assess whether a different appointment format 
+(teleconsultation, home visit, group session) might better serve the patient.
+
+SECTION 4: TELECONSULTATION AS INTERVENTION
+
+Teleconsultation is not a lesser alternative to in-person care — it is 
+a clinically appropriate and evidence-supported mode of delivery for a 
+defined set of appointment types. Using teleconsultation proactively for 
+high-risk patients who face genuine attendance barriers is a patient-centered 
+intervention, not a compromise.
+
+Appointment types suitable for teleconsultation intervention:
+- Medication review and prescription renewal
+- Post-procedure follow-up (non-wound-related)
+- Mental health counseling and therapy
+- Chronic disease management check-ins
+- Lab result discussion
+- Specialist referral initial consultations
+
+Appointment types that require in-person attendance:
+- Physical examination and diagnostic procedures
+- Surgical consultations requiring physical assessment
+- Imaging and diagnostic testing
+- Procedures and interventions
+
+When offering teleconsultation to a high-risk patient, frame it as a 
+service upgrade, not a downgrade. Communication should emphasize convenience 
+and accessibility, not the patient's risk profile.
+
+SECTION 5: ETHICAL STANDARDS IN RISK-BASED INTERVENTION
+
+Algorithmic risk scores must be used as decision-support tools, not 
+deterministic gatekeeping mechanisms. A high risk score indicates a 
+patient who needs additional support — it does not indicate a patient 
+who is less deserving of care.
+
+Interventions must be designed to remove barriers, not penalize patients 
+for predicted behavior. Overbooking a patient's slot, deprioritizing their 
+scheduling, or reducing their care quality on the basis of a predicted 
+no-show constitutes an ethical violation and undermines the purpose of 
+the system.
+
+All risk-based interventions must be documented in the patient record 
+with clear rationale. Patients have the right to be informed that 
+predictive tools are being used in their care coordination and to 
+opt out of algorithmic classification if they choose.
+
+Care coordinators must be trained to use risk scores as conversation 
+starters, not conversation conclusions. The score opens the door to 
+understanding barriers — it does not close the door on patient agency.

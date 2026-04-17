@@ -1,0 +1,113 @@
+SOCIAL DETERMINANTS OF HEALTH AND APPOINTMENT ATTENDANCE
+Source: Patient Engagement and Equity Framework
+Version: 2024
+
+SECTION 1: TRANSPORTATION AND DISTANCE
+
+Geographic distance between a patient's residence and the clinic is a 
+well-established predictor of appointment non-attendance. Patients traveling 
+more than 15km show meaningfully higher no-show rates than those within a 
+5km radius, with the effect compounding significantly beyond 30km.
+
+For patients with a travel distance exceeding 15km, teleconsultation should 
+be evaluated as an appropriate alternative where the clinical nature of the 
+appointment permits. This is particularly relevant for follow-up consultations, 
+medication reviews, and non-invasive assessments.
+
+Patients with a travel burden exceeding 45 minutes of estimated travel time 
+should be prioritized for block scheduling — consolidating multiple required 
+appointments into a single visit day — to minimize the total number of trips 
+required. This intervention is particularly impactful for patients managing 
+chronic conditions requiring multi-department visits.
+
+During adverse weather conditions such as heavy rainfall or extreme heat, 
+patients traveling long distances face disproportionate barriers. On days 
+where severe weather is forecast, proactively contact high-distance patients 
+to offer teleconsultation switching or appointment rescheduling. Waiting for 
+the patient to cancel is the wrong protocol; proactive outreach preserves 
+both patient experience and slot utilization.
+
+SECTION 2: EMPLOYMENT STATUS
+
+Unemployed patients have higher aggregate no-show rates, but the causal 
+mechanism is different from what is commonly assumed. The primary drivers 
+are not lack of time (as might be assumed with unemployed individuals) but 
+rather increased psychological stress, financial anxiety, and reduced 
+perceived health prioritization.
+
+For unemployed patients, offer flexible scheduling across morning, afternoon, 
+and evening slots. Evening appointment slots show higher attendance rates 
+specifically for blue-collar employed patients who cannot take daytime leave, 
+while unemployed patients generally do not have a strong time-of-day 
+preference.
+
+Where subsidized transportation assistance is available, proactively inform 
+unemployed patients with long travel distances at the time of booking rather 
+than waiting for them to request it. Passive availability of support services 
+does not reach the patients who need them.
+
+SECTION 3: CHRONIC CONDITIONS AND MULTI-MORBIDITY
+
+Patients managing multiple chronic conditions — particularly combinations 
+such as diabetes and hypertension, or COPD and heart disease — face higher 
+cognitive and logistical load in managing their healthcare. This increased 
+burden is associated with higher appointment non-compliance.
+
+For patients with two or more chronic conditions, evaluate eligibility for 
+transportation assistance or remote monitoring programs as part of the 
+standard care plan, not as a reactive measure after a missed appointment.
+
+These patients should also be considered for care navigator assignment — 
+a single point of contact who coordinates all appointment scheduling, 
+reminders, and logistical support. Fragmented communication across multiple 
+departments is itself a driver of missed appointments in multi-morbid patients.
+
+SECTION 4: AGE-SPECIFIC PROTOCOLS
+
+Pediatric appointments (patients under 18):
+Attendance depends entirely on parent or guardian availability and awareness. 
+Reminders must be directed to the registered guardian, not the patient. 
+Reminder messages should include calendar integration links (Google Calendar, 
+iCal) to accommodate working parents managing complex schedules.
+
+Young adults (18-30):
+This demographic has the second-highest no-show rate after elderly patients. 
+Key characteristics: low phone answer rates, high SMS engagement, tendency 
+to deprioritize preventive or non-urgent appointments. Reminders should be 
+brief, action-oriented, and contain a frictionless confirmation mechanism. 
+Avoid long-form email communications for this group.
+
+Middle-aged adults (31-64):
+Generally the most reliable demographic for attendance. Standard reminder 
+protocols are sufficient. For employed patients in this group, Monday morning 
+and Friday afternoon slots should be avoided where possible as these have 
+the highest no-show rates due to work schedule pressures.
+
+Elderly patients (65+):
+Highest-risk demographic from a communication standpoint. Many elderly 
+patients do not use smartphones reliably and may have visual or cognitive 
+impairments that reduce effectiveness of written reminders. Protocols:
+- Prioritize voice call outreach
+- Register and maintain a caregiver or family contact
+- Provide clear wayfinding instructions (parking, entrance, floor) in all 
+  reminder communications, as navigation confusion is a documented contributor 
+  to elderly patient no-shows
+
+SECTION 5: LANGUAGE AND LITERACY BARRIERS
+
+Patients for whom the clinic's default communication language is not their 
+primary language face a compounding barrier: they may not fully understand 
+appointment details even when reminders are received. This results in 
+no-shows that are recorded as patient non-compliance but are actually 
+system failures.
+
+All appointment reminders should be sent in the patient's registered 
+primary language where translation infrastructure is available. Where it 
+is not, reminders should at minimum include the date, time, and location 
+in a visually clear, non-text-heavy format.
+
+First-time patients at any clinic have higher no-show rates than returning 
+patients, partly due to unfamiliarity with the facility. For new patients, 
+include wayfinding details, parking instructions, arrival time expectations, 
+and what documents to bring in the booking confirmation. This single 
+intervention measurably reduces first-visit no-shows.

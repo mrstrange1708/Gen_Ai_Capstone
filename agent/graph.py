@@ -113,16 +113,89 @@ Return ONLY a valid JSON object in the exact format shown below, with no markdow
             "Confidence_Score": "None (LLM Failed)"
         }}
 
+def evaluate_recommendation(state: AgentState):
+    risk_level = state.get("risk_level", "Low Risk")
+    patient_data = state.get("patient_data", {})
+    retrieved_docs = state.get("retrieved_docs", [])
+    initial_output = state.get("final_output", {})
+    
+    docs_text = "\n".join(f"- {doc}" for doc in retrieved_docs)
+    initial_output_str = json.dumps(initial_output, indent=2)
+    
+    prompt = f"""
+You are an expert Clinical Safety and Workflow Validator. 
+Your job is to strictly evaluate the AI-generated recommendation below.
+
+Patient Data summary:
+- Age: {patient_data.get('age', 'Unknown')}
+- Previous No Shows: {patient_data.get('previous_no_shows', 'Unknown')}
+- Lead time to appointment: {patient_data.get('lead_time', 'Unknown')} days
+- Travel Distance: {patient_data.get('distance_km', 'Unknown')} km
+
+Retrieved Hospital Guidelines:
+{docs_text if docs_text else "None."}
+
+Initial AI Recommendation:
+{initial_output_str}
+
+You MUST check for:
+1. Logical consistency with patient data.
+2. Clinical safety (no harmful suggestions).
+3. Alignment with retrieved guidelines (no hallucinations).
+4. Missing critical actions.
+5. Overconfidence or vague advice.
+
+Return ONLY a valid JSON object in the exact format shown below, with no markdown formatting or extra text. Do not include ```json tags.
+{{
+  "is_valid": true,
+  "issues": ["list any issues found, or empty list if none"],
+  "improved_recommendation": {{
+     "Risk_Level": "...",
+     "Key_Factors": ["..."],
+     "Recommended_Actions": ["..."]
+  }},
+  "confidence_score": 0.95,
+  "evaluator_notes": "Detailed critical feedback."
+}}
+"""
+    try:
+        # User requested Qwen 32B. Using Groq's qwen integration.
+        llm = ChatGroq(temperature=0.0, model_name="qwen-2.5-32b")
+        try:
+            response = llm.invoke(prompt)
+        except Exception:
+            # Fallback if qwen-2.5-32b is offline or name is slightly different
+            llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant")
+            response = llm.invoke(prompt)
+            
+        text = response.content.strip()
+        
+        # Clean markdown if present
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+            
+        parsed = json.loads(text.strip())
+        return {"final_output": parsed} 
+    except Exception as e:
+        print(f"Error in Evaluator: {e}")
+        return {"final_output": initial_output}
+
 def build_graph():
     workflow = StateGraph(AgentState)
     
     workflow.add_node("analyze_risk", analyze_risk)
     workflow.add_node("retrieve_guidelines", retrieve_guidelines)
     workflow.add_node("generate_recommendation", generate_recommendation)
+    workflow.add_node("evaluate_recommendation", evaluate_recommendation)
     
     workflow.set_entry_point("analyze_risk")
     workflow.add_edge("analyze_risk", "retrieve_guidelines")
     workflow.add_edge("retrieve_guidelines", "generate_recommendation")
-    workflow.add_edge("generate_recommendation", END)
+    workflow.add_edge("generate_recommendation", "evaluate_recommendation")
+    workflow.add_edge("evaluate_recommendation", END)
     
     return workflow.compile()
