@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 import joblib
 import pandas as pd
 import numpy as np
@@ -238,6 +239,11 @@ st.markdown("""
     .stSelectbox label, .stNumberInput label, .stSlider label {
         color: #ffffff !important;
         font-weight: 500 !important;
+        padding-bottom: 0.4rem !important;
+    }
+    div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
+        padding: 0.2rem 0.5rem !important;
+        border-radius: 8px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -392,7 +398,7 @@ with st.sidebar:
         st.session_state.page = "Insights"
 
     if st.button(
-        "🤖 Care Coordination Agent",
+        "Care Coordination Agent",
         use_container_width=True,
         type="primary" if st.session_state.page == "Care Coordination Agent" else "secondary",
     ):
@@ -1298,7 +1304,7 @@ elif page == "Care Coordination Agent":
     st.markdown(
         """
         <div class="hero-header">
-            <h1>🤖 Care Coordination Agent</h1>
+            <h1>Care Coordination Agent</h1>
             <p>AI-powered agentic pipeline — the LLM decides which tools to call and when</p>
         </div>
         """,
@@ -1376,7 +1382,7 @@ elif page == "Care Coordination Agent":
 
 
         a_submitted = st.form_submit_button(
-            "🚀 Run Agent Pipeline", use_container_width=True
+            "Run Agent Pipeline", use_container_width=True
         )
 
     if a_submitted:
@@ -1446,16 +1452,25 @@ elif page == "Care Coordination Agent":
             "insurance_status_Uninsured": 1 if a_insurance_status == "Uninsured" else 0,
         }
 
-        # ── Run the ReAct Agent Pipeline ──
-        with st.spinner("🤖 Agent is reasoning... calling tools dynamically..."):
-            from agent.graph import run_agent_pipeline
-            from agent_ui import render_agent_results
+        # ── Run the ReAct Agent Pipeline (cached per unique patient input) ──
+        import hashlib
+        input_hash = hashlib.md5(json.dumps(agent_input_data, sort_keys=True).encode()).hexdigest()
 
-            pipeline_result = run_agent_pipeline(
-                patient_data=agent_input_data,
-                processed_features=list(agent_input_data.values()),
-                user_query="What interventions should we take for this patient?",
-            )
+        if st.session_state.get("agent_input_hash") != input_hash:
+            with st.spinner("Agent is reasoning... calling tools dynamically..."):
+                from agent.graph import run_agent_pipeline
+                from agent_ui import render_agent_results
+
+                pipeline_result = run_agent_pipeline(
+                    patient_data=agent_input_data,
+                    processed_features=list(agent_input_data.values()),
+                    user_query="What interventions should we take for this patient?",
+                )
+                st.session_state["agent_input_hash"] = input_hash
+                st.session_state["agent_pipeline_result"] = pipeline_result
+        else:
+            from agent_ui import render_agent_results
+            pipeline_result = st.session_state["agent_pipeline_result"]
 
         # ── Render the 7-section display ──
         st.markdown("---")

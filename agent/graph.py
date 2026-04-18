@@ -341,7 +341,29 @@ def run_agent_pipeline(
             embedding_fn = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
             db = Chroma(persist_directory=persist_dir, embedding_function=embedding_fn)
 
-            docs = db.similarity_search(query, k=5)
+            # Build a deterministic query from risk flags and SHAP features
+            # to ensure consistent RAG retrieval across runs
+            flags = _risk_flags_cache.get("risk_flags", [])
+            shap_features = _shap_cache.get("top_shap_features", [])
+            risk_level = _shap_cache.get("risk_level", "UNKNOWN")
+
+            deterministic_parts = []
+            if risk_level != "UNKNOWN":
+                deterministic_parts.append(f"{risk_level} risk patient")
+            # Add top SHAP feature names for targeted retrieval
+            for feat in shap_features[:3]:
+                deterministic_parts.append(feat.get("feature", "").replace("_", " "))
+            # Add risk flags
+            for flag in sorted(flags):  # sort for determinism
+                deterministic_parts.append(flag.replace("_", " "))
+
+            if deterministic_parts:
+                pinned_query = "interventions for " + ", ".join(deterministic_parts)
+            else:
+                # Fallback to LLM-provided query if no cached data available
+                pinned_query = query
+
+            docs = db.similarity_search(pinned_query, k=5)
             results = []
             for doc in docs:
                 results.append({
@@ -458,6 +480,7 @@ def run_agent_pipeline(
         temperature=0.0,
         model_name="llama-3.3-70b-versatile",
         api_key=os.getenv("GROQ_API_KEY_llama"),
+        model_kwargs={"seed": 42},
     )
 
     main_tools = [
@@ -491,6 +514,7 @@ def run_agent_pipeline(
         temperature=0.0,
         model_name="qwen-qwq-32b",
         api_key=os.getenv("GROQ_API_KEY_Qwen"),
+        model_kwargs={"seed": 42},
     )
 
     # ═══════════════════════════════════════════════════════════

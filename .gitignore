@@ -1,3 +1,5 @@
-__pycache__
+agent/__pycache__
 .DS_Store
 .env
+genai
+__pycache__/
