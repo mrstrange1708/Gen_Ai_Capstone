@@ -1,0 +1,162 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{setspace}
+
+\setcounter{secnumdepth}{0}
+
+\title{\textbf{Agentic AI for Clinical Appointment No-Show Prediction}\\
+\vspace{0.3cm}
+\large Intelligent Care Coordination using RAG and LLM Agents}
+
+\author{
+\textbf{Team Members:} \\
+Balanagu Sesha Srikar \\
+Siraparapu Siva Sankar Mani Kanta \\
+Shaik Junaid Sami
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\onehalfspacing
+
+%--------------------------------------------------
+
+\section{Abstract}
+This project presents an Agentic AI system designed for intelligent care coordination in healthcare operations. The system predicts patient appointment no-show risk and extends beyond prediction by incorporating reasoning, guideline retrieval, and structured intervention planning. Using a ReAct-style agent architecture with Retrieval-Augmented Generation (RAG), the system enables autonomous decision-making. An evaluation loop further improves reliability by validating outputs and enabling self-correction.
+
+%--------------------------------------------------
+
+\section{Introduction}
+Missed clinical appointments significantly impact healthcare efficiency and patient outcomes. While predictive models estimate no-show probability, they fail to provide actionable insights.
+
+This project introduces an Agentic AI system that not only predicts risk but also explains it, retrieves domain-specific guidelines, and generates structured intervention plans. The system demonstrates how modern AI can transition from prediction to decision support.
+
+%--------------------------------------------------
+
+\section{Problem Statement}
+The objective is to build an intelligent system that:
+\begin{itemize}
+    \item Predicts appointment no-show risk
+    \item Explains contributing risk factors
+    \item Retrieves relevant healthcare guidelines
+    \item Generates actionable intervention strategies
+    \item Ensures ethical and reliable outputs
+\end{itemize}
+
+%--------------------------------------------------
+
+\section{Agentic AI System}
+
+\subsection{Agent Architecture}
+The system uses a ReAct-style agent implemented using LangGraph. The agent dynamically selects tools to perform reasoning tasks instead of following a fixed pipeline.
+
+\subsection{Tool Design}
+The agent is equipped with domain-specific tools:
+\begin{itemize}
+    \item Prediction Tool (ML model)
+    \item Risk Analysis Tool (LLM reasoning)
+    \item Guideline Retrieval Tool (RAG)
+    \item Intervention Planning Tool
+    \item Risk Flag Detection Tool
+\end{itemize}
+
+\subsection{Retrieval-Augmented Generation (RAG)}
+A structured knowledge base of healthcare guidelines is embedded into a vector database. The system retrieves relevant context using semantic similarity search, ensuring evidence-based recommendations.
+
+\subsection{Evaluation Loop}
+A secondary LLM evaluates outputs based on:
+\begin{itemize}
+    \item Clinical Accuracy
+    \item Guideline Alignment
+    \item Ethical Soundness
+\end{itemize}
+
+If the output fails evaluation, the system retries with feedback, enabling iterative refinement and improved reliability.
+
+%--------------------------------------------------
+
+\section{System Workflow}
+
+The system follows an agent-driven workflow:
+
+\begin{enumerate}
+    \item Accept patient input data
+    \item Predict no-show risk
+    \item Analyze contributing factors
+    \item Retrieve relevant guidelines (RAG)
+    \item Generate structured intervention plan
+    \item Evaluate output using critic model
+    \item Retry if necessary
+\end{enumerate}
+
+%--------------------------------------------------
+
+\section{Results}
+
+The system produces:
+\begin{itemize}
+    \item Risk assessment summary
+    \item AI-generated clinical reasoning
+    \item Evidence-based guideline retrieval
+    \item Structured intervention plan
+\end{itemize}
+
+The integration of RAG and evaluation loop improves output quality, reduces hallucinations, and ensures actionable recommendations.
+
+%--------------------------------------------------
+
+\section{Application Interface}
+
+A Streamlit-based user interface is developed to:
+\begin{itemize}
+    \item Input patient details
+    \item Display risk predictions
+    \item Show reasoning and explanations
+    \item Present retrieved guideline evidence
+    \item Visualize intervention strategies
+    \item Display evaluation results
+\end{itemize}
+
+%--------------------------------------------------
+
+\section{Ethical Considerations}
+The system ensures:
+\begin{itemize}
+    \item Transparency in decision-making
+    \item Fair and unbiased recommendations
+    \item Patient-centric interventions
+\end{itemize}
+
+Predictions are used as decision-support tools, not deterministic outcomes.
+
+%--------------------------------------------------
+
+\section{Future Scope}
+\begin{itemize}
+    \item Integration with real-time hospital systems
+    \item Multi-modal AI capabilities
+    \item Advanced personalization using patient history
+    \item Scalable deployment across healthcare networks
+\end{itemize}
+
+%--------------------------------------------------
+
+\section{Conclusion}
+This project demonstrates the implementation of an Agentic AI system capable of reasoning, retrieval, planning, and evaluation. By combining machine learning with LLM-based intelligence, the system provides a comprehensive and practical solution for healthcare care coordination.
+
+%--------------------------------------------------
+
+\section{References}
+\begin{itemize}
+    \item LangChain Documentation
+    \item LangGraph Documentation
+    \item ChromaDB Documentation
+    \item Groq API Documentation
+\end{itemize}
+
+\end{document}
