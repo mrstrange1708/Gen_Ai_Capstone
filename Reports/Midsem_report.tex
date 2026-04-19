@@ -1,0 +1,541 @@
+\documentclass[12pt, a4paper]{report}
+
+% ─── Packages ────────────────────────────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[table]{colortbl}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tocloft}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{mdframed}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
+\usepackage{fontenc}
+\usepackage{inputenc}
+\usepackage{caption}
+
+% ─── Colours ─────────────────────────────────────────────────────────────────
+\definecolor{primaryblue}{RGB}{26, 60, 110}
+\definecolor{accentblue}{RGB}{52, 120, 190}
+\definecolor{lightgray}{RGB}{245, 247, 250}
+\definecolor{darkgray}{RGB}{80, 80, 80}
+\definecolor{rulecolor}{RGB}{200, 215, 230}
+\definecolor{boxbg}{RGB}{235, 242, 252}
+
+% ─── Hyperref ─────────────────────────────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accentblue,
+    urlcolor=accentblue,
+    citecolor=accentblue,
+    pdftitle={Clinical Appointment No-Show Prediction},
+    pdfauthor={Shaik Mohammed Junaid, Siraparapu Siva Sankar Mani Kanta, Balanagu Sesha Srikar},
+}
+
+% ─── Section Formatting ───────────────────────────────────────────────────────
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\color{primaryblue}}
+  {\chaptertitlename\ \thechapter}{12pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-10pt}{20pt}
+
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{primaryblue}}
+  {\thesection}{1em}{}[\color{rulecolor}\titlerule]
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\color{accentblue}}
+  {\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+% ─── Header / Footer ─────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{darkgray}\textit{Clinical Appointment No-Show Prediction}}
+\fancyhead[R]{\small\color{darkgray}\textit{Milestone 1}}
+\fancyfoot[C]{\small\color{darkgray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrule}{\color{rulecolor}\hrule width\headwidth height\headrulewidth}
+
+% ─── Table of Contents Style ──────────────────────────────────────────────────
+\renewcommand{\cftchapfont}{\bfseries\color{primaryblue}}
+\renewcommand{\cftchappagefont}{\bfseries\color{primaryblue}}
+\renewcommand{\cftsecfont}{\color{darkgray}}
+\renewcommand{\cftsecpagefont}{\color{darkgray}}
+\setlength{\cftbeforechapskip}{6pt}
+
+% ─── List Styling ─────────────────────────────────────────────────────────────
+\setlist[itemize]{leftmargin=1.5em, itemsep=4pt, parsep=0pt, topsep=4pt}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=4pt, parsep=0pt, topsep=4pt}
+
+% ─── Line Spacing ─────────────────────────────────────────────────────────────
+\setstretch{1.3}
+
+% ─── Caption Styling ──────────────────────────────────────────────────────────
+\captionsetup{font=small, labelfont={bf,color=primaryblue}, textfont=it}
+
+% ─── Custom Boxes ─────────────────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=lightgray,
+  linecolor=accentblue,
+  linewidth=1.5pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=8pt, innerbottommargin=8pt,
+]{infobox}
+
+\newmdenv[
+  backgroundcolor=boxbg,
+  linecolor=primaryblue,
+  linewidth=1pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=12pt, innerrightmargin=12pt,
+  innertopmargin=10pt, innerbottommargin=10pt,
+]{problembox}
+
+% ─── TikZ styles for pipeline ─────────────────────────────────────────────────
+\tikzstyle{pipenode} = [
+  rectangle, rounded corners=4pt,
+  minimum width=2.8cm, minimum height=0.9cm,
+  text centered, text width=2.6cm,
+  draw=primaryblue, fill=boxbg,
+  font=\small\bfseries\color{primaryblue}
+]
+\tikzstyle{pipearrow} = [
+  -Stealth, thick, color=accentblue
+]
+
+% ═════════════════════════════════════════════════════════════════════════════
+%  DOCUMENT
+% ═════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── Cover Page ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \thispagestyle{empty}
+
+  % Top accent bar
+  \noindent\makebox[\linewidth]{\color{primaryblue}\rule{\paperwidth}{6pt}}
+  \vspace{1.5cm}
+
+  \begin{center}
+    {\large\color{accentblue}\textsc{Introduction to Generative AI}}\\[0.4cm]
+    {\normalsize\color{darkgray}Milestone 1 Report}\\[1.5cm]
+
+    {\fontsize{28}{34}\selectfont\bfseries\color{primaryblue}
+      Clinical Appointment\\[4pt]
+      No-Show Prediction}\\[0.6cm]
+    \color{rulecolor}\rule{0.6\linewidth}{1.5pt}\\[0.8cm]
+
+    {\large\color{darkgray}\textit{Machine Learning Based Healthcare Operations System}}\\[2.5cm]
+
+    % Author block — bold and colored
+    \begin{tabular}{c}
+      {\large\bfseries\color{primaryblue} Shaik Mohammed Junaid}\\[10pt]
+      {\large\bfseries\color{primaryblue} Siraparapu Siva Sankar Mani Kanta}\\[10pt]
+      {\large\bfseries\color{primaryblue} Balanagu Sesha Srikar}
+    \end{tabular}\\[3cm]
+
+    {\color{darkgray} February 2026}
+  \end{center}
+
+  \vfill
+  \noindent\makebox[\linewidth]{\color{primaryblue}\rule{\paperwidth}{4pt}}
+\end{titlepage}
+
+% ─── Declaration ─────────────────────────────────────────────────────────────
+\cleardoublepage
+\thispagestyle{plain}
+\chapter*{Declaration of Technical Integrity}
+\addcontentsline{toc}{chapter}{Declaration of Technical Integrity}
+
+\begin{infobox}
+We formally affirm that the complete system architecture, problem formulation,
+feature engineering strategy, model selection rationale, and evaluation
+methodology were independently planned and designed by the team.
+
+\medskip
+Generative AI tools were used only in a limited and supportive capacity for
+minor coding assistance, syntax refinement, and documentation formatting.
+The core machine learning logic, experimental decisions, analytical reasoning,
+and performance evaluation were entirely developed and validated by the team
+members.
+\end{infobox}
+
+% ─── Abstract ────────────────────────────────────────────────────────────────
+\cleardoublepage
+\thispagestyle{plain}
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Missed clinical appointments significantly impact healthcare operational
+efficiency, resource allocation, and patient care continuity. This project
+presents a supervised machine learning framework for predicting appointment
+no-shows using a dataset of 50{,}000 hospital appointment records.
+
+Four classification algorithms---Logistic Regression, Decision Tree, Random
+Forest, and XGBoost---were implemented and evaluated using Accuracy, Precision,
+Recall, F1-Score, and ROC-AUC\@. Extensive feature engineering was performed
+to capture behavioural history, temporal patterns, travel burden, and
+communication signals.
+
+Among the evaluated models, XGBoost achieved the highest ROC-AUC,
+demonstrating strong discriminative performance. However, trade-offs between
+interpretability and predictive power were carefully analysed.
+
+% ─── Table of Contents ───────────────────────────────────────────────────────
+\cleardoublepage
+\tableofcontents
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Introduction}
+% ═════════════════════════════════════════════════════════════════════════════
+
+Healthcare appointment no-shows lead to financial loss, inefficient scheduling,
+and delayed treatment for other patients. Predicting high-risk patients enables
+proactive operational interventions such as reminder systems or rescheduling
+strategies.
+
+\vspace{0.6cm}
+\begin{problembox}
+  \textbf{Problem Statement:} Design and implement a supervised machine
+  learning system that predicts the probability of patient appointment no-shows
+  using historical scheduling data.
+\end{problembox}
+\vspace{0.4cm}
+
+\noindent This milestone focuses strictly on:
+\begin{itemize}
+  \item Data preprocessing
+  \item Feature engineering
+  \item Supervised classification
+  \item Performance evaluation
+\end{itemize}
+
+\noindent No Large Language Models or agentic reasoning mechanisms were used in
+this phase.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Dataset Description}
+% ─────────────────────────────────────────────────────────────────────────────
+
+This study utilises a publicly available dataset from Kaggle:
+\href{https://www.kaggle.com/datasets/miadul/hospital-appointment-no-show-prediction-dataset}%
+{Hospital Appointment No-Show Prediction Dataset}.
+The dataset consists of \textbf{50{,}000} hospital appointment records.
+
+\subsection*{Target Variable}
+\begin{itemize}
+  \item \textbf{0} --- Patient attended
+  \item \textbf{1} --- Patient missed appointment
+\end{itemize}
+
+\subsection*{Feature Categories}
+\begin{itemize}
+  \item \textbf{Demographic:} Age, Gender, Education
+  \item \textbf{Behavioural History:} Previous appointments, Previous no-shows
+  \item \textbf{Temporal:} Appointment day, Lead time
+  \item \textbf{Travel:} Distance, Travel time
+  \item \textbf{Communication:} SMS and Email reminders
+  \item \textbf{Environmental:} Rainy day, Public holiday
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Dataset Limitations}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The dataset exhibits generally weak correlations between the input features and
+the target variable, indicating limited predictive strength among the available
+attributes. As a result:
+
+\begin{itemize}
+  \item Most independent variables show weak associations with appointment
+        no-show behaviour.
+  \item Strong behavioural or temporal patterns are not clearly observable.
+  \item The dataset lacks complex real-world variability such as seasonal
+        effects, operational constraints, and long-term patient behavioural
+        history.
+  \item Feature interactions appear limited, reducing the models' ability to
+        capture deeper non-linear patterns.
+  \item Important factors such as socio-economic background, appointment
+        urgency, prior attendance consistency, and hospital workload are not
+        present.
+\end{itemize}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Methodology}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Data Preprocessing}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{itemize}
+  \item Removal of identifier columns
+  \item Handling missing values (median for numerical, mode for categorical)
+  \item One-Hot Encoding for nominal categorical variables
+  \item Ordinal Encoding for ordinal features with natural ordering
+        (\emph{e.g.}, low $<$ medium $<$ high)
+  \item Stratified 80:20 train-test split
+  \item Standard scaling (Logistic Regression only)
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Feature Engineering}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{itemize}
+  \item No-show rate $=$ Previous no-shows $\div$ Previous appointments
+  \item Lead-time indicators (short, long, same-day)
+  \item Travel burden (distance $\times$ travel time)
+  \item High-risk patient flag
+  \item Chronic condition indicators
+  \item Reminder intensity indicators
+  \item Interaction features (\emph{e.g.}, uninsured $\times$ long distance)
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Model Development}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Four supervised classification algorithms were implemented:
+
+\begin{enumerate}
+  \item \textbf{Logistic Regression} --- with class-weight balancing
+  \item \textbf{Decision Tree} --- with depth and leaf constraints
+  \item \textbf{Random Forest} --- 200 estimators
+  \item \textbf{XGBoost} --- gradient boosting with hyperparameter tuning
+\end{enumerate}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Model Evaluation}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Performance Comparison}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Table~\ref{tab:performance} summarises the performance of all four models on
+the held-out test set across five standard classification metrics.
+
+\vspace{0.5cm}
+\begin{table}[ht]
+  \centering
+  \caption{Model Performance Comparison on Hold-Out Test Set}
+  \label{tab:performance}
+  \renewcommand{\arraystretch}{1.8}
+  \setlength{\tabcolsep}{10pt}
+  \begin{tabularx}{\textwidth}{l *{5}{>{\centering\arraybackslash}X}}
+    \toprule
+    \rowcolor{boxbg}
+    \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} &
+    \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} \\
+    \midrule
+    Logistic Regression      & 67.45\% & 89.04\% & 66.01\% & 75.82\% & 76.38\% \\
+    Decision Tree            & 65.10\% & 87.28\% & 64.20\% & 73.98\% & 71.50\% \\
+    Random Forest            & 71.80\% & 86.84\% & 74.86\% & 80.41\% & 75.51\% \\
+    \rowcolor{boxbg}
+    \textbf{XGBoost (Tuned)} & \textbf{78.43\%} & 80.18\% &
+    \textbf{95.77\%} & \textbf{87.28\%} & \textbf{76.23\%} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\vspace{0.3cm}
+
+\noindent The highlighted row indicates the best-performing configuration.
+XGBoost achieves the highest accuracy, recall, and F1-Score, while Logistic
+Regression leads on precision owing to its class-weight balancing strategy.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Trade-Off Analysis}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Interpretability vs.\ Performance}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Each model occupies a different position on the interpretability--performance
+spectrum. The table below summarises the trade-off qualitatively:
+
+\vspace{0.4cm}
+\renewcommand{\arraystretch}{1.8}
+\begin{tabularx}{\textwidth}{>{\bfseries\color{primaryblue}}l X X}
+  \toprule
+  \rowcolor{boxbg}
+  \textbf{Model} & \textbf{Interpretability} & \textbf{Performance Capacity} \\
+  \midrule
+  Logistic Regression & High --- linear coefficients are directly readable &
+    Limited non-linear modelling capacity \\
+  Decision Tree       & Medium --- rule-based, human-readable paths &
+    Susceptible to overfitting without constraints \\
+  Random Forest       & Low --- aggregation of many trees reduces transparency &
+    Improved generalisation over single trees \\
+  \rowcolor{boxbg}
+  XGBoost             & Lowest --- complex boosted ensemble &
+    Highest predictive performance overall \\
+  \bottomrule
+\end{tabularx}
+\vspace{0.4cm}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Recall vs.\ Precision}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Healthcare operations prioritise high recall to minimise missed at-risk
+patients. However, excessive false positives increase unnecessary interventions.
+The F1-Score balances these competing objectives by computing the harmonic mean
+of Precision and Recall:
+
+\begin{equation}
+  F_1 = \frac{2 \cdot \mathrm{Precision} \cdot \mathrm{Recall}}
+             {\mathrm{Precision} + \mathrm{Recall}}
+\end{equation}
+
+\noindent XGBoost attains an F1-Score of \textbf{87.28\%} with a recall of
+\textbf{95.77\%}, making it the most operationally suitable model for flagging
+high-risk patients. Logistic Regression, despite its higher precision
+(89.04\%), achieves a lower recall (66.01\%), meaning it misses a greater
+proportion of actual no-show patients. The choice of operating threshold can
+further tune this balance depending on clinical deployment requirements.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Feature Importance Analysis}
+% ═════════════════════════════════════════════════════════════════════════════
+
+Using XGBoost's built-in feature importance scores, the most influential
+predictors for appointment no-show were identified as:
+
+\begin{enumerate}
+  \item Previous no-shows
+  \item Lead time
+  \item Travel distance
+  \item Number of reminders
+  \item Chronic condition indicators
+\end{enumerate}
+
+These findings align with domain knowledge: patients with a prior history of
+missed appointments and longer waiting periods are at considerably higher risk.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{System Architecture}
+% ═════════════════════════════════════════════════════════════════════════════
+
+The end-to-end pipeline was structured as a sequence of modular layers,
+each with a clearly defined responsibility. Figure~\ref{fig:pipeline}
+illustrates the full flow from raw data ingestion to final model comparison.
+
+\vspace{0.6cm}
+
+% ── TikZ Pipeline Diagram ────────────────────────────────────────────────────
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=0.5cm and 0.7cm]
+
+  % Row 1
+  \node (n1) [pipenode] {Dataset\\Loading};
+  \node (n2) [pipenode, right=of n1] {Feature\\Engineering};
+  \node (n3) [pipenode, right=of n2] {Train/Test\\Split};
+  \node (n4) [pipenode, right=of n3] {Scaling \&\\Preprocessing};
+
+  % Row 2
+  \node (n5) [pipenode, below=0.9cm of n1] {Model\\Training};
+  \node (n6) [pipenode, right=of n5] {Model\\Evaluation};
+  \node (n7) [pipenode, right=of n6] {Performance\\Comparison};
+  \node (n8) [pipenode, right=of n7] {Interpretation};
+
+  % Row 1 arrows
+  \draw [pipearrow] (n1) -- (n2);
+  \draw [pipearrow] (n2) -- (n3);
+  \draw [pipearrow] (n3) -- (n4);
+
+  % Bend down from row 1 to row 2
+  \draw [pipearrow] (n4.south) -- ++(0,-0.45) -| (n5.north);
+
+  % Row 2 arrows
+  \draw [pipearrow] (n5) -- (n6);
+  \draw [pipearrow] (n6) -- (n7);
+  \draw [pipearrow] (n7) -- (n8);
+
+  % Background group labels
+  \begin{scope}[on background layer]
+    \node[draw=rulecolor, fill=white, dashed, rounded corners=6pt,
+          fit=(n1)(n4), inner sep=7pt,
+          label={[font=\footnotesize\color{darkgray}]above:Data Preparation Phase}] {};
+    \node[draw=rulecolor, fill=white, dashed, rounded corners=6pt,
+          fit=(n5)(n8), inner sep=7pt,
+          label={[font=\footnotesize\color{darkgray}]below:Modelling \& Evaluation Phase}] {};
+  \end{scope}
+
+\end{tikzpicture}
+\caption{End-to-end pipeline flow for the no-show prediction system}
+\label{fig:pipeline}
+\end{figure}
+
+\vspace{0.4cm}
+
+The architecture is composed of eight distinct layers:
+
+\begin{enumerate}
+  \item \textbf{Data Loading Layer} --- Ingests raw CSV records.
+  \item \textbf{Feature Engineering Layer} --- Constructs derived and interaction
+        features.
+  \item \textbf{Data Splitting Layer} --- Performs stratified 80:20 partitioning.
+  \item \textbf{Scaling Layer} --- Applies standard normalisation where required.
+  \item \textbf{Preprocessing Layer} --- Encodes categorical variables.
+  \item \textbf{Model Training Layer} --- Fits each classifier on the training
+        partition.
+  \item \textbf{Evaluation Layer} --- Computes all performance metrics.
+  \item \textbf{Comparison \& Interpretation Layer} --- Benchmarks models and
+        extracts feature importances.
+\end{enumerate}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\chapter{Results and Conclusion}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Results}
+% ─────────────────────────────────────────────────────────────────────────────
+
+XGBoost achieved the highest ROC-AUC score, followed by Random Forest.
+Logistic Regression showed competitive recall owing to class-weight balancing,
+while Decision Tree provided interpretability at the cost of lower overall
+performance. The full quantitative comparison is presented in
+Table~\ref{tab:performance}.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+% ─────────────────────────────────────────────────────────────────────────────
+
+This project demonstrates the effectiveness of supervised machine learning
+techniques for predicting healthcare appointment no-shows. The key findings are:
+
+\begin{itemize}
+  \item \textbf{Ensemble methods outperform linear models} --- both Random Forest
+        and XGBoost surpass Logistic Regression on the primary metrics.
+  \item \textbf{Behavioural history is the strongest predictive signal} ---
+        prior no-show rate dominates feature importance rankings.
+  \item \textbf{Threshold tuning improves operational utility} --- adjusting the
+        classification threshold enables a better recall--precision balance for
+        real-world deployment.
+  \item \textbf{Dataset limitations restrict real-world generalisability} ---
+        the absence of socio-economic, urgency, and operational variables
+        constrains model performance.
+\end{itemize}
+
+\noindent XGBoost provided the best overall performance and was selected as the
+final model for deployment consideration in downstream milestones.
+
+\end{document}
