@@ -500,9 +500,9 @@ def _render_trace(trace, pipeline_result=None):
             padding: 1rem;
             position: absolute;
             z-index: 100;
-            top: 50%;
-            left: 105%; /* Position to the right of the node */
-            transform: translateY(-50%);
+            bottom: 105%; /* Position above the node instead of to the right */
+            left: 50%;
+            transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
             transition-delay: 0.5s; /* Only show after hovering a bit */

@@ -282,7 +282,7 @@ def _add_confusion_matrices_if_missing(metrics, models, scaler, feature_columns,
         data.rename(columns={"waiting_days": "lead_time"}, inplace=True)
 
     education_map = {"Primary": 1, "Secondary": 2, "Higher": 3}
-    data["education_level"] = data["education_level"].map(education_map).fillna(data["education_level"])
+    data["education_level"] = data["education_level"].map(education_map).fillna(0).astype(int)
 
     data["no_show_rate"] = (
         data["previous_no_shows"]
@@ -1463,7 +1463,6 @@ elif page == "Care Coordination Agent":
 
                 pipeline_result = run_agent_pipeline(
                     patient_data=agent_input_data,
-                    processed_features=list(agent_input_data.values()),
                     user_query="What interventions should we take for this patient?",
                 )
                 st.session_state["agent_input_hash"] = input_hash

@@ -39,8 +39,14 @@ MAIN_AGENT_SYSTEM = """You are a clinical care coordination AI agent for a hospi
 
 You have access to tools to predict risk, retrieve guidelines, analyze factors, and build intervention plans. The LLM (you) DECIDES which tools to call and in what order based on reasoning.
 
-WORKFLOW — follow this general order, but use your judgment:
-1. Call predict_noshow FIRST to get the patient's risk score and SHAP explanation
+MANDATORY FIRST STEP:
+You MUST call predict_noshow as your VERY FIRST action. Do NOT skip this tool.
+The risk_score in your final JSON MUST equal the EXACT value returned by the predict_noshow tool.
+NEVER write a risk_score that was not returned by predict_noshow.
+If predict_noshow has not been called, you do not know the score — do NOT guess or infer one.
+
+WORKFLOW — follow this order strictly:
+1. Call predict_noshow FIRST to get the patient's risk score and SHAP explanation (MANDATORY)
 2. Call calculate_risk_flags to identify demographic/social risk factors
 3. If risk level is LOW → give a brief summary as your final answer immediately
 4. If MEDIUM or HIGH:
@@ -72,7 +78,8 @@ Your FINAL ANSWER must be ONLY valid JSON (no markdown, no ```json blocks, no ex
 
 For LOW risk patients: include only risk_assessment, risk_flags, and a brief clinical_analysis. Omit evidence_base and intervention_plan.
 
-IMPORTANT RULES:
+CRITICAL RULES:
+- The risk_assessment.score MUST be the exact value from predict_noshow — never invent a score
 - Be PRECISE, CLINICAL, and EVIDENCE-BASED
 - Cite source document names in your rationale fields
 - Each intervention step MUST have: action, timing, rationale, responsible
@@ -201,7 +208,6 @@ def _check_ethical_soundness(intervention_plan: dict, patient_data: dict) -> dic
 
 def run_agent_pipeline(
     patient_data: dict,
-    processed_features: list,
     user_query: str = "What interventions should we take for this patient?",
 ):
     """
@@ -250,14 +256,19 @@ def run_agent_pipeline(
             explainer = shap.TreeExplainer(model)
             shap_values = explainer.shap_values(input_df)
 
-            # Handle different SHAP output formats
+            # Handle all three possible SHAP output shapes
             if isinstance(shap_values, list):
-                sv = shap_values[1]  # positive class for binary classification
+                # Old SHAP: list of arrays per class
+                sv = shap_values[1][0]
+            elif len(shap_values.shape) == 3:
+                # 3D: (samples, features, classes)
+                sv = shap_values[0, :, 1]
             else:
-                sv = shap_values
+                # 2D: (samples, features) — modern SHAP with XGBoost
+                sv = shap_values[0]
 
             feature_names = list(feature_columns)
-            shap_vals = sv[0] if len(sv.shape) > 1 else sv
+            shap_vals = np.array(sv).flatten()
 
             # Top 5 by absolute SHAP value
             top_indices = np.argsort(np.abs(shap_vals))[-5:][::-1]
@@ -275,15 +286,17 @@ def run_agent_pipeline(
                 "top_shap_features": top_features,
             }
             _shap_cache.update(result)
+
+            print(f"[PREDICT_NOSHOW DEBUG] Output: {json.dumps(result)}")
             return json.dumps(result)
 
         except Exception as e:
-            return json.dumps({
-                "error": str(e),
-                "risk_score": 0.5,
-                "risk_level": "MEDIUM",
-                "top_shap_features": [],
-            })
+            # DO NOT return a fake score — raise so the real error is visible
+            print(f"[PREDICT_NOSHOW ERROR] {type(e).__name__}: {str(e)}")
+            raise RuntimeError(
+                f"predict_noshow tool failed: {str(e)}. "
+                f"Check SHAP version compatibility with XGBoost."
+            )
 
     @tool
     def calculate_risk_flags(reason: str) -> str:
@@ -480,7 +493,6 @@ def run_agent_pipeline(
         temperature=0.0,
         model_name="llama-3.3-70b-versatile",
         api_key=os.getenv("GROQ_API_KEY_llama"),
-        model_kwargs={"seed": 42},
     )
 
     main_tools = [
@@ -497,7 +509,7 @@ def run_agent_pipeline(
     try:
         main_agent = create_react_agent(
             llm_main, main_tools,
-            state_modifier=MAIN_AGENT_SYSTEM,
+            state_modifier=SystemMessage(content=MAIN_AGENT_SYSTEM),
         )
     except TypeError:
         # Fallback for older LangGraph versions
@@ -514,7 +526,6 @@ def run_agent_pipeline(
         temperature=0.0,
         model_name="qwen-qwq-32b",
         api_key=os.getenv("GROQ_API_KEY_Qwen"),
-        model_kwargs={"seed": 42},
     )
 
     # ═══════════════════════════════════════════════════════════
@@ -548,8 +559,9 @@ def run_agent_pipeline(
         msg_content = (
             f"Patient data:\n{patient_summary}\n\n"
             f"Query: {user_query}\n\n"
-            f"Analyze this patient's no-show risk and provide a complete "
-            f"care coordination plan. Use your tools in the appropriate order."
+            f"STEP 1 (MANDATORY): Call predict_noshow NOW to get the exact risk score. "
+            f"Do NOT skip this step. Do NOT estimate the score yourself. "
+            f"Then continue with the remaining tools to build the care coordination plan."
         )
 
         if critique:
@@ -608,12 +620,8 @@ def run_agent_pipeline(
 
         best_output = agent_output
 
-        # ── Check risk level — LOW skips critic ──
-        risk_level = (
-            agent_output.get("risk_assessment", {}).get("level")
-            or agent_output.get("risk_assessment", {}).get("risk_level")
-            or _shap_cache.get("risk_level", "UNKNOWN")
-        )
+        # ── Check risk level — use tool output, NEVER trust LLM-generated risk level for routing ──
+        risk_level = _shap_cache.get("risk_level", "UNKNOWN")
 
         if risk_level == "LOW":
             return _format_final_result(
@@ -708,13 +716,11 @@ def run_agent_pipeline(
             )
 
         # ── NEEDS_REVISION — inject critique and retry ──
+        # Do NOT clear caches: the LLM already has previous tool results in
+        # its message history and will likely not re-call predict_noshow.
+        # Clearing would cause analyze_risk_factors to return 0% / UNKNOWN.
         critique = evaluation.get("critique_for_retry", "Please improve the plan.")
         retry_count += 1
-
-        # Clear caches so tools re-run fresh on retry
-        _shap_cache.clear()
-        _guidelines_cache.clear()
-        _risk_flags_cache.clear()
 
     # Safety fallback — should not reach here
     return _format_final_result(
