@@ -3,4 +3,7 @@ agent/__pycache__
 .env
 genai
 __pycache__/
-venv 
+venv
+rag/chroma_db/
+*.bin
+*.sqlite3

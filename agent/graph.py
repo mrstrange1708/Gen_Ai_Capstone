@@ -21,8 +21,6 @@ from datetime import datetime
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langgraph.prebuilt import create_react_agent
 from dotenv import load_dotenv
 
@@ -344,15 +342,13 @@ def run_agent_pipeline(
 
     @tool
     def retrieve_guidelines(query: str) -> str:
-        """Retrieve evidence-based clinical guidelines from the hospital RAG knowledge base.
+        """Retrieve evidence-based clinical guidelines from the RAG knowledge base.
         Input: natural language query describing risk factors to search for.
         Example: 'interventions for uninsured patient with previous no-shows and long lead time'
         You decide the query based on what you learned from predict_noshow and calculate_risk_flags.
         Returns: top relevant guideline excerpts with source document names."""
         try:
-            persist_dir = os.path.join(BASE_DIR, "rag", "chroma_db")
-            embedding_fn = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-            db = Chroma(persist_directory=persist_dir, embedding_function=embedding_fn)
+            from rag.retriever import retrieve
 
             # Build a deterministic query from risk flags and SHAP features
             # to ensure consistent RAG retrieval across runs
@@ -360,30 +356,19 @@ def run_agent_pipeline(
             shap_features = _shap_cache.get("top_shap_features", [])
             risk_level = _shap_cache.get("risk_level", "UNKNOWN")
 
-            deterministic_parts = []
+            parts = []
             if risk_level != "UNKNOWN":
-                deterministic_parts.append(f"{risk_level} risk patient")
+                parts.append(f"{risk_level} risk patient")
             # Add top SHAP feature names for targeted retrieval
             for feat in shap_features[:3]:
-                deterministic_parts.append(feat.get("feature", "").replace("_", " "))
+                parts.append(feat.get("feature", "").replace("_", " "))
             # Add risk flags
             for flag in sorted(flags):  # sort for determinism
-                deterministic_parts.append(flag.replace("_", " "))
+                parts.append(flag.replace("_", " "))
 
-            if deterministic_parts:
-                pinned_query = "interventions for " + ", ".join(deterministic_parts)
-            else:
-                # Fallback to LLM-provided query if no cached data available
-                pinned_query = query
+            final_query = ("interventions for " + ", ".join(parts)) if parts else query
 
-            docs = db.similarity_search(pinned_query, k=5)
-            results = []
-            for doc in docs:
-                results.append({
-                    "text": doc.page_content,
-                    "source": doc.metadata.get("source", "Unknown"),
-                })
-
+            results = retrieve(final_query, k=5)
             _guidelines_cache["retrieved_guidelines"] = results
             return json.dumps({"retrieved_guidelines": results})
 
