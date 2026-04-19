@@ -4,6 +4,4 @@ agent/__pycache__
 genai
 __pycache__/
 venv
-rag/chroma_db/
 *.bin
-*.sqlite3
