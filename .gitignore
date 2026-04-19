@@ -3,3 +3,4 @@ agent/__pycache__
 .env
 genai
 __pycache__/
+venv 
