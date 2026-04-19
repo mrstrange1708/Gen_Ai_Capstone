@@ -282,7 +282,7 @@ def _add_confusion_matrices_if_missing(metrics, models, scaler, feature_columns,
         data.rename(columns={"waiting_days": "lead_time"}, inplace=True)
 
     education_map = {"Primary": 1, "Secondary": 2, "Higher": 3}
-    data["education_level"] = data["education_level"].map(education_map).fillna(0).astype(int)
+    data["education_level"] = data["education_level"].map(education_map).fillna(data["education_level"])
 
     data["no_show_rate"] = (
         data["previous_no_shows"]
@@ -479,6 +479,39 @@ if page == "Prediction":
         submitted = st.form_submit_button("Predict No-Show Risk", use_container_width=True)
 
     if submitted:
+        loading_placeholder = st.empty()
+        loading_placeholder.markdown("""
+        <style>
+        @keyframes shimmer_eff {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .shimmer-card {
+            animation: shimmer_eff 2.5s infinite linear forwards;
+            background: linear-gradient(to right, rgba(255,255,255,0.01) 8%, rgba(255,255,255,0.05) 18%, rgba(255,255,255,0.01) 33%);
+            background-size: 1000px 100%;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .shimmer-line-title { height: 20px; width: 30%; background: rgba(255,255,255,0.06); margin-bottom: 2rem; border-radius: 4px; }
+        .shimmer-line { height: 16px; width: 100%; background: rgba(255,255,255,0.06); margin-bottom: 1rem; border-radius: 4px; }
+        .shimmer-line-med { height: 16px; width: 85%; background: rgba(255,255,255,0.06); margin-bottom: 1rem; border-radius: 4px; }
+        .shimmer-line-short { height: 16px; width: 50%; background: rgba(255,255,255,0.06); border-radius: 4px; }
+        </style>
+        <div class="shimmer-card">
+           <div style="color: #38bdf8; font-weight: 600; font-size: 1.1rem; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px;">
+               COMPUTING RISK SCORE & ANALYZING FACTORS...
+           </div>
+           <div class="shimmer-line-title"></div>
+           <div class="shimmer-line"></div>
+           <div class="shimmer-line-med"></div>
+           <div class="shimmer-line"></div>
+           <div class="shimmer-line-short"></div>
+        </div>
+        """, unsafe_allow_html=True)
+
         # Build feature vector matching the training columns (55 features)
         education_map = {"Primary": 1, "Secondary": 2, "Higher": 3}
 
@@ -592,6 +625,8 @@ if page == "Prediction":
             risk_color = "#ffffff"
             risk_class = "risk-high"
             risk_desc = "Patient is very likely to miss the appointment. Immediate intervention recommended."
+
+        loading_placeholder.empty()
 
         st.markdown("---")
         st.markdown('<div class="section-header">Prediction Results</div>', unsafe_allow_html=True)
@@ -1457,16 +1492,51 @@ elif page == "Care Coordination Agent":
         input_hash = hashlib.md5(json.dumps(agent_input_data, sort_keys=True).encode()).hexdigest()
 
         if st.session_state.get("agent_input_hash") != input_hash:
-            with st.spinner("Agent is reasoning... calling tools dynamically..."):
-                from agent.graph import run_agent_pipeline
-                from agent_ui import render_agent_results
+            loading_placeholder = st.empty()
+            loading_placeholder.markdown("""
+            <style>
+            @keyframes shimmer_eff {
+                0% { background-position: -1000px 0; }
+                100% { background-position: 1000px 0; }
+            }
+            .shimmer-card {
+                animation: shimmer_eff 2.5s infinite linear forwards;
+                background: linear-gradient(to right, rgba(255,255,255,0.01) 8%, rgba(255,255,255,0.05) 18%, rgba(255,255,255,0.01) 33%);
+                background-size: 1000px 100%;
+                border-radius: 16px;
+                padding: 2rem;
+                margin-top: 2rem;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+            }
+            .shimmer-line-title { height: 20px; width: 30%; background: rgba(255,255,255,0.06); margin-bottom: 2rem; border-radius: 4px; }
+            .shimmer-line { height: 16px; width: 100%; background: rgba(255,255,255,0.06); margin-bottom: 1rem; border-radius: 4px; }
+            .shimmer-line-med { height: 16px; width: 85%; background: rgba(255,255,255,0.06); margin-bottom: 1rem; border-radius: 4px; }
+            .shimmer-line-short { height: 16px; width: 50%; background: rgba(255,255,255,0.06); border-radius: 4px; }
+            </style>
+            <div class="shimmer-card">
+               <div style="color: #38bdf8; font-weight: 600; font-size: 1.1rem; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px;">
+                   AGENT IS REASONING... GATHERING CLINICAL DATA...
+               </div>
+               <div class="shimmer-line-title"></div>
+               <div class="shimmer-line"></div>
+               <div class="shimmer-line-med"></div>
+               <div class="shimmer-line"></div>
+               <div class="shimmer-line-short"></div>
+            </div>
+            """, unsafe_allow_html=True)
 
-                pipeline_result = run_agent_pipeline(
-                    patient_data=agent_input_data,
-                    user_query="What interventions should we take for this patient?",
-                )
-                st.session_state["agent_input_hash"] = input_hash
-                st.session_state["agent_pipeline_result"] = pipeline_result
+            from agent.graph import run_agent_pipeline
+            from agent_ui import render_agent_results
+
+            pipeline_result = run_agent_pipeline(
+                patient_data=agent_input_data,
+                user_query="What interventions should we take for this patient?",
+            )
+            
+            loading_placeholder.empty()
+            
+            st.session_state["agent_input_hash"] = input_hash
+            st.session_state["agent_pipeline_result"] = pipeline_result
         else:
             from agent_ui import render_agent_results
             pipeline_result = st.session_state["agent_pipeline_result"]
